@@ -31,6 +31,7 @@ import com.mja.reyamf.common.runIO
 import com.mja.reyamf.common.runMain
 import com.mja.reyamf.databinding.SidebarLayoutBinding
 import com.mja.reyamf.manager.adapter.SideBarAdapter
+import com.mja.reyamf.manager.adapter.VerticalSpaceItemDecoration
 import com.mja.reyamf.manager.utils.TipUtil
 import com.mja.reyamf.xposed.services.YAMFManager
 import com.mja.reyamf.xposed.services.YAMFManager.config
@@ -167,7 +168,7 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
             when (event.action) {
                 MotionEvent.ACTION_DOWN ->  storeTouchs(event)
 
-                MotionEvent.ACTION_MOVE ->  moveBubble(event)
+                MotionEvent.ACTION_MOVE ->  moveSidebar(event)
 
                 MotionEvent.ACTION_UP   ->  openApp(event)
 
@@ -199,29 +200,6 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
             }
         }
 
-        val clickListener: (AppInfo) -> Unit = {
-            if (displayId == null)
-                YAMFManager.createWindow(StartCmd(it.componentName, it.userId))
-            else
-                startActivity(context, it.componentName, it.userId, displayId)
-            hideMenu()
-        }
-
-        val longClickListener: (Int) -> Unit = {
-            config.favApps.removeAt(it)
-            YAMFManager.sideBarUpdateConfig(gson.toJson(config))
-
-            runIO {
-                filterApp()
-
-                runMain {
-                    rvAdapter.setData(filteredShowApps)
-                    rvAdapter.notifyDataSetChanged()
-                }
-            }
-        }
-
-        rvAdapter = SideBarAdapter(clickListener, arrayListOf(), longClickListener)
         getAppList()
     }
 
@@ -243,7 +221,7 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
         return true
     }
 
-    private fun moveBubble(event: MotionEvent): Boolean {
+    private fun moveSidebar(event: MotionEvent): Boolean {
         swipeX = event.rawX.toInt()
         params.y = initialY + (event.rawY - initialTouchY).toInt()
 
@@ -298,7 +276,7 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
                     binding.sideBarMenu.visibility = View.VISIBLE
                     animateResize(
                         binding.sideBarMenu,
-                        0, 90.dpToPx().toInt(),
+                        0, 70.dpToPx().toInt(),
                         350.dpToPx().toInt(), 350.dpToPx().toInt()
                     ) {
                         binding.closeLayout.visibility = View.VISIBLE
@@ -314,6 +292,36 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
                             filterApp()
 
                             runMain {
+                                val longClickListener: (Int) -> Unit = {
+                                    config.favApps.removeAt(it)
+                                    YAMFManager.sideBarUpdateConfig(gson.toJson(config))
+
+                                    runIO {
+                                        filterApp()
+
+                                        runMain {
+                                            rvAdapter.setData(filteredShowApps)
+                                            rvAdapter.notifyDataSetChanged()
+                                        }
+                                    }
+                                }
+
+                                val clickListener: (AppInfo) -> Unit = {
+                                    if (displayId == null)
+                                        YAMFManager.createWindow(StartCmd(it.componentName, it.userId))
+                                    else
+                                        startActivity(context, it.componentName, it.userId, displayId)
+                                    hideMenu()
+                                }
+
+                                rvAdapter = SideBarAdapter(clickListener, arrayListOf(), longClickListener)
+
+                                binding.rvSideBarMenu.layoutManager = LinearLayoutManager(context)
+                                binding.rvSideBarMenu.adapter = rvAdapter
+                                binding.rvSideBarMenu.isVerticalScrollBarEnabled = false
+
+                                binding.rvSideBarMenu.addItemDecoration(VerticalSpaceItemDecoration(8.dpToPx().toInt()))
+
                                 rvAdapter.setData(filteredShowApps)
                                 rvAdapter.notifyDataSetChanged()
                             }
@@ -339,7 +347,7 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
             runOnMainThread {
                 animateResize(
                     binding.sideBarMenu,
-                    90.dpToPx().toInt(), 0,
+                    70.dpToPx().toInt(), 0,
                     350.dpToPx().toInt(), 350.dpToPx().toInt()
                 ) {
                     binding.closeLayout.visibility = View.GONE
@@ -354,6 +362,7 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
             delay(200)
             runOnMainThread {
                 animateAlpha(binding.sideBarImage, 0F, 1F)
+                binding.rvSideBarMenu.adapter = null
             }
         }
     }
@@ -376,11 +385,6 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
 
             runMain {
                 filterApp()
-                binding.rvSideBarMenu.layoutManager = LinearLayoutManager(context)
-                binding.rvSideBarMenu.adapter = rvAdapter
-                binding.rvSideBarMenu.isVerticalScrollBarEnabled = false
-                rvAdapter.setData(filteredShowApps)
-                rvAdapter.notifyDataSetChanged()
             }
         }
     }
