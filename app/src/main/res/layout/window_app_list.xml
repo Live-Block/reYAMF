@@ -3,22 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mcv"
         style="@style/Widget.Material3.CardView.Elevated"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="48dp"
-        android:background="?attr/colorSurface"
+        android:background="@android:color/transparent"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:id="@+id/ll_top"
@@ -43,7 +48,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/ll_top"
                 tools:listitem="@layout/item_app" />
@@ -55,5 +60,5 @@
                 android:layout_below="@id/ll_top"
                 android:indeterminate="true" />
         </RelativeLayout>
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

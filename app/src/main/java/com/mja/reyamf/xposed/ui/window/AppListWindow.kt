@@ -8,14 +8,19 @@ import android.content.pm.ActivityInfo
 import android.content.pm.IPackageManagerHidden
 import android.content.pm.PackageManagerHidden
 import android.content.pm.UserInfo
+import android.graphics.Color
 import android.graphics.PixelFormat
+import android.graphics.drawable.ColorDrawable
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.graphics.ColorUtils
 import androidx.core.widget.doOnTextChanged
+import androidx.recyclerview.widget.GridLayoutManager
 import com.github.kyuubiran.ezxhelper.utils.argTypes
 import com.github.kyuubiran.ezxhelper.utils.args
 import com.github.kyuubiran.ezxhelper.utils.invokeMethodAs
@@ -82,6 +87,17 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
             y = 0
         }
         binding.root.let { layout ->
+//            val background = layout.background
+//            if (background is ColorDrawable) {
+//                val baseColor = background.color
+//
+//                val colorWithTransparency = ColorUtils.setAlphaComponent(baseColor, (0.9f * 255).toInt())
+//
+//                layout.setBackgroundColor(colorWithTransparency)
+//            } else {
+//                layout.setBackgroundColor(ColorUtils.setAlphaComponent(Color.BLACK, (0.9f * 255).toInt()))
+//            }
+
             Instances.windowManager.addView(layout, params)
         }
         binding.root.setOnClickListener {
@@ -130,10 +146,7 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
             TipUtil.showToast("App added to sidebar")
         }
 
-        binding.rv.layoutManager = FlexboxLayoutManager(context).apply {
-            flexDirection = FlexDirection.ROW
-            justifyContent = JustifyContent.FLEX_START
-        }
+        binding.rv.layoutManager = GridLayoutManager(context, 4)
         rvAdapter = AppListAdapter(clickListener, arrayListOf(), longClickListener)
         binding.rv.adapter = rvAdapter
         rvAdapter.setData(showApps)
