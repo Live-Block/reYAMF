@@ -751,38 +751,7 @@ class AppWindow(
     }
 
     fun forwardMotionEvent(event: MotionEvent) {
-        val pointerCords: Array<MotionEvent.PointerCoords?> = arrayOfNulls(event.pointerCount)
-        val pointerProperties: Array<MotionEvent.PointerProperties?> =
-            arrayOfNulls(event.pointerCount)
-        for (i in 0 until event.pointerCount) {
-            val oldCords = MotionEvent.PointerCoords()
-            val pointerProperty = MotionEvent.PointerProperties()
-            event.getPointerCoords(i, oldCords)
-            event.getPointerProperties(i, pointerProperty)
-            pointerCords[i] = oldCords
-            pointerCords[i]!!.apply {
-                x = oldCords.x
-                y = oldCords.y
-            }
-            pointerProperties[i] = pointerProperty
-        }
-
-        val newEvent = MotionEvent.obtain(
-            event.downTime,
-            event.eventTime,
-            event.action,
-            event.pointerCount,
-            pointerProperties,
-            pointerCords,
-            event.metaState,
-            event.buttonState,
-            event.xPrecision,
-            event.yPrecision,
-            event.deviceId,
-            event.edgeFlags,
-            event.source,
-            event.flags
-        )
+        val newEvent = MotionEvent.obtain(event)
         newEvent.invokeMethod("setDisplayId", args(displayId), argTypes(Integer.TYPE))
         Instances.inputManager.injectInputEvent(newEvent, 0)
         newEvent.recycle()
