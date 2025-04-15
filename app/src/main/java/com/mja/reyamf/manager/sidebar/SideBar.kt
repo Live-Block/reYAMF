@@ -283,6 +283,7 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
             binding.root.elevation = 8.dpToPx()
 
             binding.cvSideBarMenu.setCardBackgroundColor(Color.TRANSPARENT)
+            binding.cvSideBarMenu.strokeWidth = 1.dpToPx().toInt()
 
             animateResize(
                 binding.cvSideBarMenu,
@@ -374,6 +375,7 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
             binding.sideBarMenu.visibility = View.GONE
             binding.clickMask.visibility = View.VISIBLE
             binding.cvSideBarMenu.setCardBackgroundColor(colorString.toColorInt())
+            binding.cvSideBarMenu.strokeWidth = 1
         }
 
         CoroutineScope(Dispatchers.Main).launch {

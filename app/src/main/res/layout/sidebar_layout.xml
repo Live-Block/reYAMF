@@ -19,7 +19,7 @@
         android:id="@+id/cvSideBarMenu"
         android:layout_width="4dp"
         android:layout_height="65dp"
-        app:cardBackgroundColor="#ffffff"
+        app:cardBackgroundColor="?attr/colorSurface"
         app:cardCornerRadius="20dp"
         android:layout_marginStart="3dp"
         app:layout_constraintStart_toStartOf="parent"
