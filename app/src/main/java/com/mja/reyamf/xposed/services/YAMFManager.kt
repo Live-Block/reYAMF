@@ -12,7 +12,6 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.InputDevice
 import android.view.KeyEvent
-import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.github.kyuubiran.ezxhelper.utils.argTypes
 import com.github.kyuubiran.ezxhelper.utils.args
@@ -22,7 +21,6 @@ import com.mja.reyamf.common.gson
 import com.mja.reyamf.common.model.Config
 import com.mja.reyamf.common.model.StartCmd
 import com.mja.reyamf.common.runMain
-import com.mja.reyamf.manager.services.YAMFManagerProxy
 import com.mja.reyamf.manager.sidebar.SideBar
 import com.mja.reyamf.xposed.IOpenCountListener
 import com.mja.reyamf.xposed.IYAMFManager
@@ -265,10 +263,11 @@ object YAMFManager : IYAMFManager.Stub() {
     private val OpenInYAMFBroadcastReceiver: BroadcastReceiver.(Context, Intent) -> Unit =
         { _: Context, intent: Intent ->
             val taskId = intent.getIntExtra(EXTRA_TASK_ID, 0)
-            val componentName = intent.getParcelableExtra<ComponentName>(EXTRA_COMPONENT_NAME)
+            val componentNameStr = intent.getStringExtra(EXTRA_COMPONENT_NAME)
             val userId = intent.getIntExtra(EXTRA_USER_ID, 0)
             val source = intent.getIntExtra(EXTRA_SOURCE, SOURCE_UNSPECIFIED)
-            createWindow(StartCmd(componentName, userId, taskId))
+
+            createWindow(StartCmd(ComponentName.unflattenFromString(componentNameStr!!), userId, taskId))
 
             // TODO: better way to close recents
             if (source == SOURCE_RECENT && config.recentBackHome) {

@@ -12,53 +12,53 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="48dp"
-        android:background="@android:color/transparent"
+        android:background="?attr/colorSurface"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp">
 
-        <RelativeLayout
+        <LinearLayout
+            android:id="@+id/ll_top"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <LinearLayout
-                android:id="@+id/ll_top"
-                android:layout_width="match_parent"
+            <EditText
+                android:id="@+id/et_search"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:autofillHints="name"
+                android:inputType="text" />
 
-                <EditText
-                    android:id="@+id/et_search"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:autofillHints="name"
-                    android:inputType="text" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_user"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_user"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_below="@id/ll_top"
+            android:foregroundGravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ll_top"
+            tools:listitem="@layout/item_app" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/ll_top"
-                tools:listitem="@layout/item_app" />
-
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/pv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/ll_top"
-                android:indeterminate="true" />
-        </RelativeLayout>
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/pv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ll_top"
+            android:indeterminate="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ll_top" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

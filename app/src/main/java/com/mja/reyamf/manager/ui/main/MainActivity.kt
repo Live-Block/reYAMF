@@ -32,6 +32,10 @@ import com.mja.reyamf.manager.ui.setting.SettingActivity
 import com.mja.reyamf.manager.utils.TipUtil
 import com.mja.reyamf.xposed.IOpenCountListener
 import com.mja.reyamf.xposed.utils.log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -148,6 +152,17 @@ class MainActivity : AppCompatActivity() {
             msSideBar.setOnCheckedChangeListener { _, isChecked ->
                 config.launchSideBarAtBoot = isChecked
                 YAMFManagerProxy.updateConfig(gson.toJson(config))
+            }
+
+            msSideBarPosition.isChecked = config.sidebarPosition
+            msSideBarPosition.setOnCheckedChangeListener { _, isChecked ->
+                config.sidebarPosition = isChecked
+                YAMFManagerProxy.updateConfig(gson.toJson(config))
+                CoroutineScope(Dispatchers.IO).launch {
+                    YAMFManagerProxy.killSideBar()
+                    delay(1000)
+                    YAMFManagerProxy.launchSideBar()
+                }
             }
 
             ivDemo.let {

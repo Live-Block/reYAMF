@@ -1,56 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/root"
+<androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/rootSidebar"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_gravity="top|start">
 
-    <RelativeLayout
-        android:id="@+id/barLayout"
+    <View
+        android:id="@+id/clickMask"
         android:layout_width="30dp"
         android:layout_height="65dp"
-        android:orientation="vertical"
-        android:visibility="visible"
+        android:elevation="2dp"
+        android:layout_marginStart="3dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/sideBarImage"
-            android:layout_width="8dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="3dp"
-            android:src="@drawable/bar_corners_bg"
-            tools:ignore="ContentDescription" />
-
-        <View
-            android:id="@+id/clickMask"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:elevation="2dp" />
-    </RelativeLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvSideBarMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="-15dp"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:strokeWidth="2dp"
-        app:strokeColor="@color/transparentOutline"
+        android:layout_width="4dp"
+        android:layout_height="65dp"
+        app:cardBackgroundColor="#ffffff"
         app:cardCornerRadius="20dp"
-        app:layout_constraintStart_toEndOf="@+id/barLayout"
-        app:layout_constraintTop_toTopOf="@+id/barLayout">
+        android:layout_marginStart="3dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/transparentOutline"
+        app:strokeWidth="1dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/sideBarMenu"
             android:layout_width="70dp"
             android:layout_height="350dp"
-            android:background="@drawable/menu_bg"
             android:orientation="vertical"
             android:paddingVertical="10dp"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintStart_toEndOf="@+id/barLayout"
             app:layout_constraintTop_toTopOf="@+id/barLayout">
 
@@ -59,8 +42,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:fillViewport="true"
-                android:scrollbars="none"
                 android:overScrollMode="never"
+                android:scrollbars="none"
+                android:background="@android:color/transparent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -70,7 +54,7 @@
                     android:id="@+id/relativeLayout"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:background="?attr/colorSurface"
+                    android:background="@android:color/transparent"
                     android:gravity="center"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -81,8 +65,9 @@
                         android:id="@+id/ivAllApp"
                         android:layout_width="35dp"
                         android:layout_height="35dp"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginTop="8dp"
                         android:src="@drawable/baseline_apps_24"
+                        android:background="@android:color/transparent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -93,11 +78,11 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentEnd="true"
-                        android:background="?attr/colorSurface"
+                        android:layout_marginTop="8dp"
+                        android:background="@android:color/transparent"
                         android:nestedScrollingEnabled="false"
-                        android:scrollbars="none"
                         android:overScrollMode="never"
-                        android:layout_marginTop="10dp"
+                        android:scrollbars="none"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -110,6 +95,7 @@
                         android:gravity="center"
                         android:text="@string/wow_nsuch_empty"
                         android:visibility="gone"
+                        android:background="@android:color/transparent"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -124,6 +110,7 @@
                 android:layout_marginTop="40dp"
                 android:elevation="2dp"
                 android:indeterminate="true"
+                android:background="@android:color/transparent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

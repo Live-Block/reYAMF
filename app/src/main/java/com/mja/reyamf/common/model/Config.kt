@@ -33,7 +33,8 @@ data class Config(
     var launchSideBarAtBoot: Boolean = false,
     var enableSidebar: Boolean = true,
     var sidebarTransparency: Int = 80,
-    var windowRoundedCorner: Int = 20
+    var windowRoundedCorner: Int = 20,
+    var sidebarPosition: Boolean = false //false=left, true=right
 ) {
     data class HookLauncher(
         var hookRecents: Boolean = true,

@@ -15,7 +15,6 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.IPackageManagerHidden
 import android.content.res.Resources
-import android.os.Build
 import android.os.Bundle
 import android.os.UserHandle
 import android.os.VibrationEffect
@@ -25,16 +24,17 @@ import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.ScaleAnimation
+import com.github.kyuubiran.ezxhelper.utils.Log
 import com.github.kyuubiran.ezxhelper.utils.argTypes
 import com.github.kyuubiran.ezxhelper.utils.args
 import com.github.kyuubiran.ezxhelper.utils.invokeMethod
 import com.github.kyuubiran.ezxhelper.utils.newInstance
-import de.robv.android.xposed.XposedBridge
 import com.mja.reyamf.common.model.StartCmd
 import com.mja.reyamf.common.onException
 import com.mja.reyamf.xposed.services.YAMFManager
 import net.bytebuddy.android.AndroidClassLoadingStrategy
 import java.io.File
+import de.robv.android.xposed.XposedBridge
 
 fun log(tag: String, message: String) {
     XposedBridge.log("[$tag] $message")
@@ -159,7 +159,29 @@ fun IPackageManagerHidden.getActivityInfoCompat(className: ComponentName, flags:
 
 fun vibratePhone(context: Context) {
     val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+    vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+}
+
+fun animateSidebar(
+    view: View,
+    startWidth: Int,
+    endWidth: Int,
+    startHeight: Int,
+    endHeight: Int,
+    isRtl: Boolean,
+    onEnd: (() -> Unit)? = null
+) {
+    if (isRtl) {
+        if (startWidth > endWidth) {
+            animateAlpha(view, 1f, 0f, onEnd)
+            android.util.Log.d("test", "hide")
+        } else {
+            animateAlpha(view, 0f, 1f, onEnd)
+            android.util.Log.d("test", "show")
+        }
+    } else {
+        animateResize(view, startWidth, endWidth, startHeight, endHeight, onEnd)
+    }
 }
 
 fun animateResize(
@@ -238,10 +260,21 @@ fun animateScaleThenResize(
 }
 
 
-fun animateAlpha(view: View, startAlpha: Float, endAlpha: Float) {
+fun animateAlpha(view: View, startAlpha: Float, endAlpha: Float, onEnd: (() -> Unit)? = null) {
     if (endAlpha == 1F) view.visibility = View.VISIBLE
     val animation1 = AlphaAnimation(startAlpha, endAlpha)
     animation1.duration = 200
+
+    animation1.setAnimationListener(object : Animation.AnimationListener {
+        override fun onAnimationStart(animation: Animation?) {}
+
+        override fun onAnimationEnd(animation: Animation?) {
+            onEnd?.invoke()
+        }
+
+        override fun onAnimationRepeat(animation: Animation?) {}
+    })
+
     view.startAnimation(animation1)
     if (endAlpha == 1F) view.visibility = View.VISIBLE else view.visibility = View.GONE
 }

@@ -5,77 +5,72 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:elevation="8dp"
+    android:background="@null"
     android:theme="@style/Theme.Material3.DayNight">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cvapp_icon"
+        android:id="@+id/cvParent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:strokeWidth="2dp"
+        app:cardBackgroundColor="@android:color/transparent"
         app:strokeColor="@color/transparentOutline"
-        app:contentPadding="10dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="8dp">
-        <ImageView
-            android:id="@+id/app_icon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:contentDescription="@string/collapsed_app_icon"
-            tools:srcCompat="@tools:sample/avatars" />
-    </com.google.android.material.card.MaterialCardView>
+        android:visibility="invisible"
+        android:elevation="8dp"
+        android:background="@null"
+        android:backgroundTint="@android:color/transparent"
+        android:paddingBottom="15dp"
+        app:strokeWidth="0dp">
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cvBackground"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:strokeWidth="2dp"
-        app:strokeColor="@color/transparentOutline"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="8dp">
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/background"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cvapp_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:paddingBottom="15dp"
-            android:background="?attr/colorSurface"
-            tools:ignore="UselessParent">
+            android:visibility="invisible"
+            android:layout_marginVertical="2dp"
+            android:layout_marginHorizontal="2dp"
+            app:cardBackgroundColor="?attr/colorSurface">
+            <ImageView
+                android:id="@+id/app_icon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="@string/collapsed_app_icon"
+                tools:srcCompat="@tools:sample/avatars" />
+        </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cv_app"
-                style="@style/Widget.Material3.CardView.Elevated"
-                android:layout_width="wrap_content"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cvBackground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            app:strokeWidth="0dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/background"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="?attr/colorSurface"
-                app:cardCornerRadius="@dimen/app_card_radius"
-                app:cardElevation="0dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:background="?attr/colorSurface"
+                android:paddingBottom="15dp"
+                tools:ignore="UselessParent">
 
                 <RelativeLayout
                     android:id="@+id/rl_cardRoot"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?attr/colorSurface">
-
-                    <!--                <TextureView-->
-                    <!--                    android:id="@+id/surface"-->
-                    <!--                    android:layout_width="200dp"-->
-                    <!--                    android:layout_height="300dp"-->
-                    <!--                    android:layout_below="@id/rl_top" />-->
+                    android:background="?attr/colorSurface"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <RelativeLayout
                         android:id="@+id/rl_top"
                         android:layout_width="wrap_content"
                         android:layout_height="40dp"
                         android:layout_alignEnd="@id/surface"
-                        android:paddingHorizontal="6dp"
                         android:background="?attr/colorSurface"
+                        android:paddingHorizontal="6dp"
                         tools:ignore="UnknownId">
 
                         <ImageButton
@@ -122,49 +117,48 @@
                             android:src="@drawable/ic_close_24" />
                     </RelativeLayout>
                 </RelativeLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-            <RelativeLayout
-                android:id="@+id/v_sizePreviewer"
-                android:layout_width="200dp"
-                android:layout_height="300dp"
-                android:background="@drawable/a_bg"
-                android:layout_marginTop="40dp"
-                android:elevation="5dp"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                <RelativeLayout
+                    android:id="@+id/v_sizePreviewer"
+                    android:layout_width="200dp"
+                    android:layout_height="300dp"
+                    android:background="@drawable/a_bg"
+                    android:elevation="5dp"
+                    android:layout_marginTop="40dp"
+                    android:visibility="gone"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- This thing has to be stretched to keep it from getting smaller. Ridiculous. -->
-            <!-- absolutely love this comment by duzhaokun123 lol -->
-            <FrameLayout
-                android:id="@+id/v_supporter"
-                android:layout_width="200dp"
-                android:layout_height="300dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cv_app" />
+                <!-- This thing has to be stretched to keep it from getting smaller. Ridiculous. -->
+                <!-- absolutely love this comment by duzhaokun123 lol -->
+                <FrameLayout
+                    android:id="@+id/v_supporter"
+                    android:layout_width="200dp"
+                    android:layout_height="300dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/rl_cardRoot" />
 
-            <RelativeLayout
-                android:id="@+id/rl_bottom"
-                android:layout_width="50dp"
-                android:layout_height="15dp"
-                android:layout_below="@id/surface"
-                android:layout_alignEnd="@id/surface"
-                android:layout_marginBottom="-15dp"
-                android:background="?attr/colorSurface"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                <RelativeLayout
+                    android:id="@+id/rlRightResize"
+                    android:layout_width="70dp"
+                    android:layout_height="15dp"
+                    android:layout_below="@id/surface"
+                    android:layout_alignEnd="@id/surface"
+                    android:background="@android:color/holo_blue_dark"
+                    android:layout_marginBottom="-15dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
 
-                <ImageButton
-                    android:id="@+id/ib_resize"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
-                    android:layout_alignParentEnd="true"
-                    android:background="@null"
-                    android:contentDescription="@string/resize_desc"
-                    android:elevation="2dp" />
-
-            </RelativeLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                    <ImageButton
+                        android:id="@+id/ibRightResize"
+                        android:layout_width="70dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentEnd="true"
+                        android:background="@android:color/holo_blue_dark"
+                        android:contentDescription="@string/resize_desc"
+                        android:elevation="2dp" />
+                </RelativeLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
     </com.google.android.material.card.MaterialCardView>
 </FrameLayout>
