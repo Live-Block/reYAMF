@@ -271,15 +271,6 @@ class AppWindow(
                 delay(200)
 
                 animateScaleThenResize(
-                    binding.cvBackground,
-                    1F, 1F,
-                    0F, 0F,
-                    0.5F, 0.5F,
-                    0, 0
-                ) {
-                }
-
-                animateScaleThenResize(
                     binding.cvParent,
                     1F, 1F,
                     0F, 0F,
@@ -355,19 +346,6 @@ class AppWindow(
             originalWidth = binding.cvParent.width
             originalHeight = binding.cvParent.height
             binding.cvParent.visibility = View.VISIBLE
-            binding.cvParent.strokeWidth = 2.dpToPx().toInt()
-
-            animateScaleThenResize(
-                binding.cvParent,
-                0F, 0F,
-                1F, 1F,
-                0.5F, 0.5F,
-                originalWidth, originalHeight
-            ) {
-                binding.cvParent.post {
-                    setParrentWrapContent()
-                }
-            }
 
             animateScaleThenResize(
                 binding.cvBackground,
@@ -385,6 +363,7 @@ class AppWindow(
                     animateAlpha(binding.ibMinimize, 0f, 1f)
                     animateAlpha(binding.ibFullscreen, 0f, 1f)
                     animateAlpha(binding.ibBack, 0f, 1f)
+                    binding.cvParent.strokeWidth = 2.dpToPx().toInt()
                 }
 
                 isResize = true

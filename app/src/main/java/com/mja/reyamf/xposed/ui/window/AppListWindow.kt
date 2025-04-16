@@ -43,6 +43,7 @@ import com.mja.reyamf.xposed.services.YAMFManager.sideBarUpdateConfig
 import com.mja.reyamf.xposed.utils.AppInfoCache
 import com.mja.reyamf.xposed.utils.Instances
 import com.mja.reyamf.xposed.utils.TipUtil
+import com.mja.reyamf.xposed.utils.animateScaleThenResize
 import com.mja.reyamf.xposed.utils.componentName
 import com.mja.reyamf.xposed.utils.getActivityInfoCompat
 import com.mja.reyamf.xposed.utils.log
@@ -102,8 +103,18 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
 
             Instances.windowManager.addView(layout, params)
         }
+
         binding.root.setOnClickListener {
-            close()
+            animateScaleThenResize(
+                binding.cvParent,
+                1F, 1F,
+                0F, 0F,
+                0.5F, 0.5F,
+                0, 0
+            ) {
+                binding.root.visibility = View.GONE
+                close()
+            }
         }
         binding.mcv.setOnTouchListener { _, _ -> true }
         Instances.userManager.invokeMethodAs<List<UserInfo>>(
@@ -129,11 +140,21 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
             }.show()
         }
         val clickListener: (AppInfo) -> Unit = {
-            if (displayId == null)
-                YAMFManager.createWindow(StartCmd(it.componentName, userId))
-            else
-                startActivity(context, it.componentName, userId, displayId)
-            close()
+            animateScaleThenResize(
+                binding.cvParent,
+                1F, 1F,
+                0F, 0F,
+                0.5F, 0.5F,
+                0, 0
+            ) {
+                binding.root.visibility = View.GONE
+
+                if (displayId == null)
+                    YAMFManager.createWindow(StartCmd(it.componentName, userId))
+                else
+                    startActivity(context, it.componentName, userId, displayId)
+                close()
+            }
         }
 
         val longClickListener: (AppInfo) -> Unit = {
@@ -174,6 +195,25 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
             }
             rvAdapter.setData(showApps)
             rvAdapter.notifyDataSetChanged()
+        }
+
+
+        binding.root.post {
+            val origWidth = binding.root.width
+            val origHeight = binding.root.height
+            val cvParams = binding.cvParent.layoutParams
+            params.width = 0
+            params.height = 0
+            binding.cvParent.layoutParams = cvParams
+
+            binding.cvParent.visibility  = View.VISIBLE
+            animateScaleThenResize(
+                binding.cvParent,
+                0F, 0F,
+                1F, 1F,
+                0.5F, 0.5F,
+                origWidth, origHeight
+            )
         }
     }
 
