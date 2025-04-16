@@ -9,6 +9,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.UserHandle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -110,11 +111,15 @@ class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val taskView = param.args[0] as View
                     val shortcuts = param.result as MutableList<Any>
+                    log(TAG, "hooking taskbar ${lpparam.packageName}")
                     var itemInfo = XposedHelpers.getObjectField(shortcuts[0], "mItemInfo")
                     itemInfo =
                         itemInfo.javaClass.newInstance(args(itemInfo), argTypes(itemInfo.javaClass))
+
+                    val taskContainers = XposedHelpers.getObjectField(taskView, "taskContainers") as List<*>
+                    val firstContainer = taskContainers[0]
+                    val task = XposedHelpers.getObjectField(firstContainer, "task")
                     val activity = taskView.context
-                    val task = XposedHelpers.callMethod(taskView, "getTask")
                     val key = XposedHelpers.getObjectField(task, "key")
                     val taskId = XposedHelpers.getIntField(key, "id")
                     val topComponent =

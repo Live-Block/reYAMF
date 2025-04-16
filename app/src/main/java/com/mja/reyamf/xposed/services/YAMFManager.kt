@@ -263,11 +263,11 @@ object YAMFManager : IYAMFManager.Stub() {
     private val OpenInYAMFBroadcastReceiver: BroadcastReceiver.(Context, Intent) -> Unit =
         { _: Context, intent: Intent ->
             val taskId = intent.getIntExtra(EXTRA_TASK_ID, 0)
-            val componentNameStr = intent.getStringExtra(EXTRA_COMPONENT_NAME)
+            val componentName =
+                intent.getParcelableExtra(EXTRA_COMPONENT_NAME, ComponentName::class.java)
             val userId = intent.getIntExtra(EXTRA_USER_ID, 0)
             val source = intent.getIntExtra(EXTRA_SOURCE, SOURCE_UNSPECIFIED)
-
-            createWindow(StartCmd(ComponentName.unflattenFromString(componentNameStr!!), userId, taskId))
+            createWindow(StartCmd(componentName, userId, taskId))
 
             // TODO: better way to close recents
             if (source == SOURCE_RECENT && config.recentBackHome) {
