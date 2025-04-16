@@ -116,9 +116,16 @@ class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     itemInfo =
                         itemInfo.javaClass.newInstance(args(itemInfo), argTypes(itemInfo.javaClass))
 
-                    val taskContainers = XposedHelpers.getObjectField(taskView, "taskContainers") as List<*>
-                    val firstContainer = taskContainers[0]
-                    val task = XposedHelpers.getObjectField(firstContainer, "task")
+                    var task: Any = Unit
+
+                    runCatching {
+                        task = XposedHelpers.callMethod(taskView, "getTask")
+                    }.onFailure {
+                        val taskContainers = XposedHelpers.getObjectField(taskView, "taskContainers") as List<*>
+                        val firstContainer = taskContainers[0]
+                        task = XposedHelpers.getObjectField(firstContainer, "task")
+                    }
+
                     val activity = taskView.context
                     val key = XposedHelpers.getObjectField(task, "key")
                     val taskId = XposedHelpers.getIntField(key, "id")
