@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="38dp"
     android:background="?attr/colorSurface">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvParent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="38dp"
         android:background="?attr/colorSurface"
         android:visibility="invisible"
-        app:strokeWidth="0dp"
-        app:cardCornerRadius="20dp">
+        app:cardCornerRadius="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeWidth="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/mcv"
@@ -28,7 +32,7 @@
 
             <LinearLayout
                 android:id="@+id/ll_top"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -52,7 +56,7 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_below="@id/ll_top"
                 android:foregroundGravity="center"
@@ -64,12 +68,14 @@
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/pv"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/ll_top"
                 android:indeterminate="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/ll_top" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
-</FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

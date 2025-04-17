@@ -198,9 +198,9 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
         }
 
 
-        binding.root.post {
-            val origWidth = binding.root.width
-            val origHeight = binding.root.height
+        binding.cvParent.post {
+            val origWidth = binding.cvParent.width
+            val origHeight = binding.cvParent.height
             val cvParams = binding.cvParent.layoutParams
             params.width = 0
             params.height = 0

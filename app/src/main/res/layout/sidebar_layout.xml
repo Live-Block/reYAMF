@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="top|start">
+    android:layout_gravity="top|start"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <View
         android:id="@+id/clickMask"
@@ -75,7 +76,7 @@
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvSideBarMenu"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
                         android:layout_alignParentStart="true"
                         android:layout_alignParentEnd="true"
                         android:layout_marginTop="8dp"
@@ -83,6 +84,7 @@
                         android:nestedScrollingEnabled="false"
                         android:overScrollMode="never"
                         android:scrollbars="none"
+                        tools:listitem="@layout/sidebar_itemview"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
