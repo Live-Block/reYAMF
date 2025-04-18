@@ -29,13 +29,13 @@
     <string name="ime_switch_text">在窗口中显示输入法\n必须启用 VIRTUAL_DISPLAY_FLAG_PUBLIC</string>
     <string name="keep_alive_service_text">保持 reYAMF 在后台运行</string>
     <string name="collapsed_app_icon">折叠视图的应用图标</string>
-    <string name="wow_nsuch_empty">太空了\n我差点以为崩了</string>
+    <string name="wow_nsuch_empty">哇！\n空荡荡~</string>
     <string name="enable_sidebar">启用侧边栏</string>
     <string name="launch_at_startup">开机自启</string>
     <string name="note">注意：</string>
     <string name="note_content"><b>如果你无法接受任何应用的权限请求，</b> 这是因为侧边栏覆盖了屏幕</string>
     <string name="close_butt_desc">点击侧边栏上的此按钮关闭侧边栏</string>
-    <string name="restart_butt_desc">或点击此按钮临时关闭侧边栏 5 秒，侧边栏会自动重新出现</string>
+    <string name="restart_butt_desc">或点击此按钮临时关闭侧边栏，侧边栏会在5秒后重新出现</string>
     <string name="reyamf">reYAMF</string>
     <string name="a_yamf_fork">a YAMF fork</string>
     <string name="view_type">视图类型</string>
@@ -53,10 +53,10 @@
     <string name="launcher_might_need_to_be_restarted_twice_for_hooks_to_take_effect">* 桌面启动器可能需要重启两次才能生效</string>
     <string name="current_to_window">将当前应用切换为小窗</string>
     <string name="launch_sidebar">启动侧边栏</string>
-    <string name="reduce_dpi">降低 DPI 密度</string>
+    <string name="reduce_dpi">DPI 缩减</string>
     <string name="sidebar_transparency">侧边栏透明度</string>
     <string name="_80">80</string>
     <string name="window_rounded_corner">窗口圆角大小</string>
     <string name="_20">20</string>
-    <string name="sidebar_position">侧边栏位置</string>
+    <string name="sidebar_position">右置侧边栏</string>
 </resources>
