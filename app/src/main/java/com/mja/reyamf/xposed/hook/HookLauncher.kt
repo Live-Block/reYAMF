@@ -229,7 +229,7 @@ class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         putExtra(YAMFManager.EXTRA_USER_ID, userId)
                         putExtra(YAMFManager.EXTRA_SOURCE, YAMFManager.SOURCE_POPUP)
                     })
-                _this.invokeMethodAuto("dismissTaskMenuView", _this.getObject("mTarget"))
+                _this.invokeMethodAuto("dismissTaskMenuView")
                 param.result = Unit
             }
 
