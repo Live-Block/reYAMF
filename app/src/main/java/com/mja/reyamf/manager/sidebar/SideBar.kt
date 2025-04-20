@@ -18,8 +18,8 @@ import android.view.MotionEvent
 import android.view.Surface
 import android.view.View
 import android.view.WindowManager
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.graphics.toColorInt
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.kyuubiran.ezxhelper.utils.argTypes
 import com.github.kyuubiran.ezxhelper.utils.args
@@ -140,8 +140,8 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
         binding.cvSideBarMenu.post {
             binding.cvSideBarMenu.setCardBackgroundColor(colorString.toColorInt())
             if (config.sidebarPosition) {
-                binding.cvSideBarMenu.layoutDirection = View.LAYOUT_DIRECTION_RTL
-                alignCardsToStart()
+                binding.root.layoutDirection = View.LAYOUT_DIRECTION_RTL
+
             }
         }
 
@@ -151,21 +151,22 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
             layout.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         }
 
-        binding.closeClickMask.setOnClickListener {
+        binding.ivExtraTool.setOnClickListener {
             hideMenu()
         }
-        binding.closeBarClickMask.setOnClickListener {
-            isSideBarRun = false
-            YAMFManager.sidebarLayout = null
-            Instances.windowManager.removeView(binding.root)
+
+        binding.ivExtraTool.setOnLongClickListener {
+            animateAlpha(binding.cvExtraTool, 0f, 1f)
+
+            true
         }
 
-        binding.restartBarClickMask.setOnClickListener {
+        binding.ibKillSidebar.setOnClickListener {
             isSideBarRun = false
             YAMFManager.restartSideBar(binding.root, 5000)
         }
 
-        binding.ivAllApp.setOnClickListener {
+        binding.ibAppList.setOnClickListener {
             runMain {
                 Instances.iStatusBarService.collapsePanels()
                 AppListWindow(
@@ -174,6 +175,12 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
                 )
             }
             hideMenu()
+        }
+
+        binding.ibKillSidebar.setOnClickListener {
+            isSideBarRun = false
+            YAMFManager.sidebarLayout = null
+            Instances.windowManager.removeView(binding.root)
         }
 
         binding.clickMask.setOnTouchListener { _, event ->
@@ -291,13 +298,6 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
                 65.dpToPx().toInt(), 350.dpToPx().toInt(), context
             ) {
                 binding.sideBarMenu.visibility = View.VISIBLE
-                binding.closeLayout.visibility = View.VISIBLE
-                binding.closeSidebar.visibility = View.VISIBLE
-                binding.restartSidebar.visibility = View.VISIBLE
-
-                animateAlpha(binding.closeLayout, 0F, 1F)
-                animateAlpha(binding.closeSidebar, 0F, 1F)
-                animateAlpha(binding.restartSidebar, 0F, 1F)
                 animateAlpha(binding.rvSideBarMenu, 0F, 1F)
 
                 runIO {
@@ -347,7 +347,6 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
             }
 
             CoroutineScope(Dispatchers.Main).launch {
-                if (config.sidebarPosition) delay(100)
                 binding.clickMask.visibility = View.GONE
                 binding.cvSideBarMenu.setCardBackgroundColor(cardBgColor.defaultColor)
             }
@@ -359,29 +358,44 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
         vibratePhone(context)
         binding.root.elevation = 0.dpToPx()
 
-        animateAlpha(binding.closeLayout, 1F, 0F)
-        animateAlpha(binding.closeSidebar, 1F, 0F)
-        animateAlpha(binding.restartSidebar, 1F, 0F)
         animateAlpha(binding.rvSideBarMenu, 1F, 0F)
 
-        animateResize(
-            binding.cvSideBarMenu,
-            70.dpToPx().toInt(), 4.dpToPx().toInt(),
-            350.dpToPx().toInt(), 65.dpToPx().toInt(), context
-        ) {
-            binding.closeLayout.visibility = View.GONE
-            binding.closeSidebar.visibility = View.GONE
-            binding.restartSidebar.visibility = View.GONE
-            binding.sideBarMenu.visibility = View.GONE
-            binding.clickMask.visibility = View.VISIBLE
-            binding.cvSideBarMenu.setCardBackgroundColor(colorString.toColorInt())
-            binding.cvSideBarMenu.strokeWidth = 1
-        }
+        if (binding.cvExtraTool.isVisible) {
+            animateAlpha(binding.cvExtraTool, 1f, 0f) {
+                animateResize(
+                    binding.cvSideBarMenu,
+                    70.dpToPx().toInt(), 4.dpToPx().toInt(),
+                    350.dpToPx().toInt(), 65.dpToPx().toInt(), context
+                ) {
+                    binding.sideBarMenu.visibility = View.GONE
+                    binding.clickMask.visibility = View.VISIBLE
+                    binding.cvSideBarMenu.setCardBackgroundColor(colorString.toColorInt())
+                    binding.cvSideBarMenu.strokeWidth = 1
+                }
 
-        CoroutineScope(Dispatchers.Main).launch {
-            delay(200)
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(200)
 
-            binding.rvSideBarMenu.adapter = null
+                    binding.rvSideBarMenu.adapter = null
+                }
+            }
+        } else {
+            animateResize(
+                binding.cvSideBarMenu,
+                70.dpToPx().toInt(), 4.dpToPx().toInt(),
+                350.dpToPx().toInt(), 65.dpToPx().toInt(), context
+            ) {
+                binding.sideBarMenu.visibility = View.GONE
+                binding.clickMask.visibility = View.VISIBLE
+                binding.cvSideBarMenu.setCardBackgroundColor(colorString.toColorInt())
+                binding.cvSideBarMenu.strokeWidth = 1
+            }
+
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(200)
+
+                binding.rvSideBarMenu.adapter = null
+            }
         }
     }
 
@@ -462,32 +476,31 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
         }
     }
 
-    private fun alignCardsToStart() {
-        val constraintLayout = binding.root
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(constraintLayout)
-
-        val cards = listOf(binding.closeLayout, binding.restartSidebar, binding.closeSidebar)
-
-        for (card in cards) {
-            constraintSet.clear(card.id, ConstraintSet.START)
-
-            constraintSet.connect(
-                card.id,
-                ConstraintSet.END,
-                binding.cvSideBarMenu.id,
-                ConstraintSet.START,
-                3.dpToPx().toInt()
-            )
-
-            card.rotationY = 180f
-        }
-
-        constraintSet.applyTo(constraintLayout)
-
-        for (card in cards) {
-            card.rotationY = 180f
-        }
-    }
-
+//    private fun alignCardsToStart() {
+//        val constraintLayout = binding.root
+//        val constraintSet = ConstraintSet()
+//        constraintSet.clone(constraintLayout)
+//
+//        val cards = listOf(binding.closeLayout, binding.restartSidebar, binding.closeSidebar)
+//
+//        for (card in cards) {
+//            constraintSet.clear(card.id, ConstraintSet.START)
+//
+//            constraintSet.connect(
+//                card.id,
+//                ConstraintSet.END,
+//                binding.cvSideBarMenu.id,
+//                ConstraintSet.START,
+//                3.dpToPx().toInt()
+//            )
+//
+//            card.rotationY = 180f
+//        }
+//
+//        constraintSet.applyTo(constraintLayout)
+//
+//        for (card in cards) {
+//            card.rotationY = 180f
+//        }
+//    }
 }

@@ -225,7 +225,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.channel -> {
                 startActivity(Intent(Intent.ACTION_VIEW).apply {
-                    data = "https://t.me/YAMF_channel".toUri()
+                    data = "https://t.me/+HjGegWE9jBM0N2Rl".toUri()
                 })
                 true
             }
@@ -239,7 +239,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.github -> {
                 startActivity(Intent(Intent.ACTION_VIEW).apply {
-                    data = "https://github.com/duzhaokun123/YAMF".toUri()
+                    data = "https://github.com/JuanArton/reYAMF".toUri()
                 })
                 true
             }

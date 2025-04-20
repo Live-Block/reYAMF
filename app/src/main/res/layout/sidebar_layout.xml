@@ -16,187 +16,160 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cvSideBarMenu"
-        android:layout_width="4dp"
-        android:layout_height="65dp"
-        app:cardBackgroundColor="?attr/colorSurface"
-        app:cardCornerRadius="20dp"
-        android:layout_marginStart="5dp"
+    <LinearLayout
+        android:id="@+id/test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:strokeColor="@color/transparentOutline"
-        app:strokeWidth="1dp">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/sideBarMenu"
-            android:layout_width="70dp"
-            android:layout_height="350dp"
-            android:orientation="vertical"
-            android:paddingVertical="10dp"
-            android:visibility="visible"
-            app:layout_constraintStart_toEndOf="@+id/barLayout"
-            app:layout_constraintTop_toTopOf="@+id/barLayout">
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cvSideBarMenu"
+            android:layout_width="4dp"
+            android:layout_height="65dp"
+            android:layout_marginStart="5dp"
+            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardCornerRadius="20dp"
+            app:strokeColor="@color/transparentOutline"
+            app:strokeWidth="1dp">
 
-            <ScrollView
-                android:id="@+id/scrollView2"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:fillViewport="true"
-                android:overScrollMode="never"
-                android:scrollbars="none"
-                android:background="@android:color/transparent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/sideBarMenu"
+                android:layout_width="70dp"
+                android:layout_height="350dp"
+                android:orientation="vertical"
+                android:paddingVertical="10dp"
+                android:visibility="visible"
+                app:layout_constraintStart_toEndOf="@+id/barLayout"
+                app:layout_constraintTop_toTopOf="@+id/barLayout">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/relativeLayout"
+                <ScrollView
+                    android:id="@+id/scrollView2"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:background="@android:color/transparent"
-                    android:gravity="center"
+                    android:fillViewport="true"
+                    android:overScrollMode="never"
+                    android:scrollbars="none"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/ivAllApp">
+                    app:layout_constraintTop_toTopOf="parent">
 
-                    <ImageView
-                        android:id="@+id/ivAllApp"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:layout_marginTop="8dp"
-                        android:src="@drawable/baseline_apps_24"
-                        android:background="@android:color/transparent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvSideBarMenu"
-                        android:layout_width="wrap_content"
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/relativeLayout"
+                        android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginTop="8dp"
                         android:background="@android:color/transparent"
-                        android:nestedScrollingEnabled="false"
-                        android:overScrollMode="never"
-                        android:scrollbars="none"
-                        tools:listitem="@layout/sidebar_itemview"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/ivAllApp" />
-
-                    <TextView
-                        android:id="@+id/tvEmpty"
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="@string/wow_nsuch_empty"
-                        android:visibility="gone"
-                        android:background="@android:color/transparent"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </ScrollView>
+                        app:layout_constraintTop_toBottomOf="@+id/iv_extra_tool">
 
-            <com.google.android.material.progressindicator.CircularProgressIndicator
-                android:id="@+id/cpiLoading"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="40dp"
-                android:elevation="2dp"
-                android:indeterminate="true"
-                android:background="@android:color/transparent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/scrollView2" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
+                        <ImageView
+                            android:id="@+id/iv_extra_tool"
+                            android:layout_width="35dp"
+                            android:layout_height="25dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@android:color/transparent"
+                            android:src="@drawable/three_dot_horiz"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/closeLayout"
-        android:layout_width="25dp"
-        android:layout_height="80dp"
-        android:gravity="center"
-        android:layout_marginStart="3dp"
-        android:backgroundTint="?attr/colorSurface"
-        android:visibility="gone"
-        app:strokeWidth="2dp"
-        app:strokeColor="@color/transparentOutline"
-        app:cardCornerRadius="13dp"
-        app:layout_constraintBottom_toBottomOf="@+id/cvSideBarMenu"
-        app:layout_constraintStart_toEndOf="@+id/cvSideBarMenu"
-        app:layout_constraintTop_toTopOf="@+id/cvSideBarMenu">
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvSideBarMenu"
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="8dp"
+                            android:background="@android:color/transparent"
+                            android:nestedScrollingEnabled="false"
+                            android:overScrollMode="never"
+                            android:scrollbars="none"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/iv_extra_tool"
+                            tools:listitem="@layout/sidebar_itemview" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/baseline_keyboard_double_arrow_left_24"/>
+                        <TextView
+                            android:id="@+id/tvEmpty"
+                            android:layout_width="40dp"
+                            android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
+                            android:gravity="center"
+                            android:text="@string/wow_nsuch_empty"
+                            android:visibility="gone"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </ScrollView>
 
-        <View
-            android:id="@+id/closeClickMask"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:elevation="2dp"/>
-    </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/cpiLoading"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="40dp"
+                    android:background="@android:color/transparent"
+                    android:elevation="2dp"
+                    android:indeterminate="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/scrollView2" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/restartSidebar"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_marginStart="3dp"
-        android:backgroundTint="?attr/colorSurface"
-        android:gravity="center"
-        android:visibility="gone"
-        android:layout_marginBottom="20dp"
-        app:strokeWidth="2dp"
-        app:strokeColor="@color/transparentOutline"
-        app:cardCornerRadius="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/closeSidebar"
-        app:layout_constraintStart_toEndOf="@+id/cvSideBarMenu">
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cvExtraTool"
+            android:layout_width="200dp"
+            android:layout_height="350dp"
+            android:layout_marginStart="10dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="?attr/colorSurface"
+            app:cardCornerRadius="20dp"
+            app:strokeColor="@color/transparentOutline"
+            app:strokeWidth="1dp">
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/baseline_restart_alt_24" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="10dp">
 
-        <View
-            android:id="@+id/restartBarClickMask"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:elevation="2dp" />
-    </com.google.android.material.card.MaterialCardView>
+                <ImageButton
+                    android:id="@+id/ib_kill_sidebar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_close_24"
+                    android:background="@android:color/transparent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/closeSidebar"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_marginStart="3dp"
-        android:backgroundTint="?attr/colorSurface"
-        android:gravity="center"
-        android:visibility="gone"
-        app:strokeWidth="2dp"
-        app:strokeColor="@color/transparentOutline"
-        app:cardCornerRadius="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/cvSideBarMenu">
+                <ImageButton
+                    android:id="@+id/ib_restart_sidebar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/baseline_restart_alt_24"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_app_list"
+                    app:layout_constraintStart_toEndOf="@+id/ib_kill_sidebar"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_close_24" />
-
-        <View
-            android:id="@+id/closeBarClickMask"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:elevation="2dp" />
-    </com.google.android.material.card.MaterialCardView>
+                <ImageButton
+                    android:id="@+id/ib_app_list"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/baseline_apps_24"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
