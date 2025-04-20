@@ -261,7 +261,8 @@ class AppWindow(
                     1F, 1F,
                     0F, 0F,
                     0.5F, 0.5F,
-                    0, 0
+                    0, 0,
+                    context
                 ) {
                     onDestroy()
                 }
@@ -338,7 +339,8 @@ class AppWindow(
                 0F, 0F,
                 1F, 1F,
                 0.5F, 0.5F,
-                originalWidth, originalHeight
+                originalWidth, originalHeight,
+                context
             ) {
                 setBackgroundWrapContent()
 
@@ -569,7 +571,8 @@ class AppWindow(
                     0.5F, 0.5F,
                     1F, 1F,
                     0F, 0F,
-                    originalWidth, originalHeight
+                    originalWidth, originalHeight,
+                    context
                 ){
                     setBackgroundWrapContent()
                     setParrentWrapContent()
@@ -596,7 +599,8 @@ class AppWindow(
                 animateResize(
                     binding.cvBackground,
                     originalWidth, originalWidth/2,
-                    originalHeight, originalHeight/2
+                    originalHeight, originalHeight/2,
+                    context
                 ){
                     isResize = true
                 }
@@ -638,9 +642,10 @@ class AppWindow(
         isCollapsed = false
         binding.background.visibility = View.VISIBLE
 
-        animateResize(binding.appIcon, 40.dpToPx().toInt(), 0, 40.dpToPx().toInt(), 0) {
+        animateResize(
+            binding.appIcon, 40.dpToPx().toInt(), 0, 40.dpToPx().toInt(), 0, context) {
             binding.cvappIcon.visibility = View.GONE
-            animateResize(binding.cvBackground, 0, originalWidth, 0, originalHeight) {
+            animateResize(binding.cvBackground, 0, originalWidth, 0, originalHeight, context) {
                 setBackgroundWrapContent()
                 setParrentWrapContent()
                 binding.cvappIcon.visibility = View.VISIBLE
@@ -671,10 +676,10 @@ class AppWindow(
         CoroutineScope(Dispatchers.Main).launch {
             delay(200)
 
-            animateResize(binding.cvBackground, binding.cvBackground.width, 0, binding.cvBackground.height, 0) {
+            animateResize(binding.cvBackground, binding.cvBackground.width, 0, binding.cvBackground.height, 0, context) {
                 binding.cvappIcon.visibility = View.VISIBLE
                 binding.background.visibility = View.GONE
-                animateResize(binding.appIcon, 0, 40.dpToPx().toInt(), 0, 40.dpToPx().toInt())
+                animateResize(binding.appIcon, 0, 40.dpToPx().toInt(), 0, 40.dpToPx().toInt(), context)
 
                 isResize = true
             }

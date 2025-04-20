@@ -19,8 +19,10 @@ import android.os.Bundle
 import android.os.UserHandle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.provider.Settings
 import android.util.TypedValue
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.ScaleAnimation
@@ -162,62 +164,53 @@ fun vibratePhone(context: Context) {
     vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
 }
 
-fun animateSidebar(
-    view: View,
-    startWidth: Int,
-    endWidth: Int,
-    startHeight: Int,
-    endHeight: Int,
-    isRtl: Boolean,
-    onEnd: (() -> Unit)? = null
-) {
-    if (isRtl) {
-        if (startWidth > endWidth) {
-            animateAlpha(view, 1f, 0f, onEnd)
-            android.util.Log.d("test", "hide")
-        } else {
-            animateAlpha(view, 0f, 1f, onEnd)
-            android.util.Log.d("test", "show")
-        }
-    } else {
-        animateResize(view, startWidth, endWidth, startHeight, endHeight, onEnd)
-    }
-}
-
 fun animateResize(
     view: View,
     startWidth: Int,
     endWidth: Int,
     startHeight: Int,
     endHeight: Int,
+    context: Context,
+    baseDuration: Long = 300L,
     onEnd: (() -> Unit)? = null
 ) {
-    val widthAnimator = ValueAnimator.ofInt(startWidth, endWidth)
-    val heightAnimator = ValueAnimator.ofInt(startHeight, endHeight)
-
-    widthAnimator.addUpdateListener { animator ->
-        val value = animator.animatedValue as Int
-        val params = view.layoutParams
-        params.width = value
-        view.layoutParams = params
+    val scale = try {
+        Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE)
+    } catch (e: Settings.SettingNotFoundException) {
+        1.0f // fallback to normal scale if not found
     }
 
-    heightAnimator.addUpdateListener { animator ->
-        val value = animator.animatedValue as Int
-        val params = view.layoutParams
-        params.height = value
-        view.layoutParams = params
-    }
+    val adjustedDuration = (baseDuration * scale).toLong()
 
-    val animatorSet = AnimatorSet()
-    animatorSet.playTogether(widthAnimator, heightAnimator)
-    animatorSet.duration = 200
-    animatorSet.addListener(object : AnimatorListenerAdapter() {
-        override fun onAnimationEnd(animation: Animator) {
-            onEnd?.invoke()
+    val widthAnimator = ValueAnimator.ofInt(startWidth, endWidth).apply {
+        addUpdateListener { animator ->
+            val value = animator.animatedValue as Int
+            val params = view.layoutParams
+            params.width = value
+            view.layoutParams = params
         }
-    })
-    animatorSet.start()
+    }
+
+    val heightAnimator = ValueAnimator.ofInt(startHeight, endHeight).apply {
+        addUpdateListener { animator ->
+            val value = animator.animatedValue as Int
+            val params = view.layoutParams
+            params.height = value
+            view.layoutParams = params
+        }
+    }
+
+    AnimatorSet().apply {
+        playTogether(widthAnimator, heightAnimator)
+        duration = adjustedDuration
+        interpolator = AccelerateDecelerateInterpolator()
+        addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                onEnd?.invoke()
+            }
+        })
+        start()
+    }
 }
 
 fun animateScaleThenResize(
@@ -230,31 +223,41 @@ fun animateScaleThenResize(
     pivotY: Float,
     endWidth: Int,
     endHeight: Int,
+    context: Context,
+    baseDuration: Long = 300L,
     onEnd: (() -> Unit)? = null
 ) {
+    val scale = try {
+        Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE)
+    } catch (e: Settings.SettingNotFoundException) {
+        1.0f
+    }
+
+    val adjustedDuration = (baseDuration * scale).toLong()
+
     val scaleAnimation = ScaleAnimation(
         startX, endX,
         startY, endY,
         Animation.RELATIVE_TO_SELF, pivotX,
         Animation.RELATIVE_TO_SELF, pivotY
     ).apply {
-        duration = 200
+        duration = adjustedDuration
         fillAfter = false
+        interpolator = AccelerateDecelerateInterpolator()
+        setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation?) {}
+
+            override fun onAnimationEnd(animation: Animation?) {
+                val params = view.layoutParams
+                params.width = endWidth
+                params.height = endHeight
+                view.layoutParams = params
+                onEnd?.invoke()
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {}
+        })
     }
-
-    scaleAnimation.setAnimationListener(object : Animation.AnimationListener {
-        override fun onAnimationStart(animation: Animation?) {}
-
-        override fun onAnimationEnd(animation: Animation?) {
-            val params = view.layoutParams
-            params.width = endWidth
-            params.height = endHeight
-
-            onEnd?.invoke()
-        }
-
-        override fun onAnimationRepeat(animation: Animation?) {}
-    })
 
     view.startAnimation(scaleAnimation)
 }

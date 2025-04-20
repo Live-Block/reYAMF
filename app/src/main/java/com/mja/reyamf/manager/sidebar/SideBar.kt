@@ -288,7 +288,7 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
             animateResize(
                 binding.cvSideBarMenu,
                 4.dpToPx().toInt(), 70.dpToPx().toInt(),
-                65.dpToPx().toInt(), 350.dpToPx().toInt()
+                65.dpToPx().toInt(), 350.dpToPx().toInt(), context
             ) {
                 binding.sideBarMenu.visibility = View.VISIBLE
                 binding.closeLayout.visibility = View.VISIBLE
@@ -367,7 +367,7 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
         animateResize(
             binding.cvSideBarMenu,
             70.dpToPx().toInt(), 4.dpToPx().toInt(),
-            350.dpToPx().toInt(), 65.dpToPx().toInt()
+            350.dpToPx().toInt(), 65.dpToPx().toInt(), context
         ) {
             binding.closeLayout.visibility = View.GONE
             binding.closeSidebar.visibility = View.GONE

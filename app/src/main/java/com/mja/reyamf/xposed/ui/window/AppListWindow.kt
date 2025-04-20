@@ -110,7 +110,8 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
                 1F, 1F,
                 0F, 0F,
                 0.5F, 0.5F,
-                0, 0
+                0, 0,
+                context
             ) {
                 binding.root.visibility = View.GONE
                 close()
@@ -145,7 +146,8 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
                 1F, 1F,
                 0F, 0F,
                 0.5F, 0.5F,
-                0, 0
+                0, 0,
+                context
             ) {
                 binding.root.visibility = View.GONE
 
@@ -212,7 +214,8 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
                 0F, 0F,
                 1F, 1F,
                 0.5F, 0.5F,
-                origWidth, origHeight
+                origWidth, origHeight,
+                context
             )
         }
     }

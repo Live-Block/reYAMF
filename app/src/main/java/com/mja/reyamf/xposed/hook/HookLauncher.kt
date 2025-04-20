@@ -111,10 +111,7 @@ class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val taskView = param.args[0] as View
                     val shortcuts = param.result as MutableList<Any>
-                    log(TAG, "hooking taskbar ${lpparam.packageName}")
-                    var itemInfo = XposedHelpers.getObjectField(shortcuts[0], "mItemInfo")
-                    itemInfo =
-                        itemInfo.javaClass.newInstance(args(itemInfo), argTypes(itemInfo.javaClass))
+                    val itemInfo = XposedHelpers.getObjectField(shortcuts[0], "mItemInfo")
 
                     var task: Any = Unit
 
@@ -129,21 +126,31 @@ class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     val activity = taskView.context
                     val key = XposedHelpers.getObjectField(task, "key")
                     val taskId = XposedHelpers.getIntField(key, "id")
-                    val topComponent =
-                        XposedHelpers.callMethod(itemInfo, "getTargetComponent") as ComponentName
+
                     val userId = XposedHelpers.getIntField(key, "userId")
 
                     val classRemoteActionShortcut = XposedHelpers.findClass(
                         "com.android.launcher3.popup.RemoteActionShortcut",
                         lpparam.classLoader
                     )
+
                     val intent = Intent(YAMFManager.ACTION_OPEN_IN_YAMF).apply {
                         setPackage("android")
-                        putExtra(YAMFManager.EXTRA_TASK_ID, taskId)
-                        putExtra(YAMFManager.EXTRA_COMPONENT_NAME, topComponent)
-                        putExtra(YAMFManager.EXTRA_USER_ID, userId)
-                        putExtra(YAMFManager.EXTRA_SOURCE, YAMFManager.SOURCE_RECENT)
                     }
+
+                    runCatching {
+                        val itemInfoTmp =
+                            itemInfo.javaClass.newInstance(args(itemInfo), argTypes(itemInfo.javaClass))
+                        val topComponent = XposedHelpers.callMethod(itemInfoTmp, "getTargetComponent") as ComponentName
+                        intent.putExtra(YAMFManager.EXTRA_COMPONENT_NAME, topComponent)
+                    }.onFailure {
+                        val topComponent = extractComponentInfo(itemInfo.toString()).toString()
+                        intent.putExtra(YAMFManager.EXTRA_COMPONENT_NAME, topComponent)
+                    }
+                    intent.putExtra(YAMFManager.EXTRA_TASK_ID, taskId)
+                    intent.putExtra(YAMFManager.EXTRA_USER_ID, userId)
+                    intent.putExtra(YAMFManager.EXTRA_SOURCE, YAMFManager.SOURCE_RECENT)
+
                     val action = RemoteAction(
                         Icon.createWithBitmap(
                             moduleRes.getDrawable(R.drawable.ic_picture_in_picture_alt_24, null)
@@ -300,5 +307,10 @@ class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
         loadClass("com.android.launcher3.util.DisplayController")
             .findMethod { name == "isTransientTaskbar" }
             .hookReturnConstant(true)
+    }
+
+    fun extractComponentInfo(input: String): String? {
+        val regex = Regex("""ComponentInfo\{[^}]+\}""")
+        return regex.find(input)?.value
     }
 }
