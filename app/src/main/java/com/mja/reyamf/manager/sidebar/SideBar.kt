@@ -82,7 +82,6 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
     private var showApps: MutableList<AppInfo> = mutableListOf()
     private var filteredShowApps: MutableList<AppInfo> = mutableListOf()
     private lateinit var rvAdapter: SideBarAdapter
-    private var orientation = 0
     private var isShown = false
     private var cardBgColor: ColorStateList = ColorStateList.valueOf(Color.WHITE)
     private var colorString = "#FFFFFF"
@@ -116,12 +115,10 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
         params.y = when (windowManager.defaultDisplay.rotation) {
             Surface.ROTATION_0, Surface.ROTATION_180 -> {
                 log(TAG, "portrait ${config.portraitY}")
-                orientation = 0
                 config.portraitY
             }
             Surface.ROTATION_90, Surface.ROTATION_270 -> {
                 log(TAG, "landscape ${config.landscapeY}")
-                orientation = 1
                 config.landscapeY
             }
             else -> 0
@@ -161,7 +158,7 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
             true
         }
 
-        binding.ibKillSidebar.setOnClickListener {
+        binding.ibRestartSidebar.setOnClickListener {
             isSideBarRun = false
             YAMFManager.restartSideBar(binding.root, 5000)
         }
@@ -196,26 +193,18 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
         }
 
         binding.root.addOnLayoutChangeListener {  _, _, _, _, _, _, _, _, _ ->
-            var newOrientation = 0
             when (windowManager.defaultDisplay.rotation) {
                 Surface.ROTATION_0, Surface.ROTATION_180 -> {
                     params.y = config.portraitY
                     windowManager.updateViewLayout(binding.root, params)
                     log(TAG, "Portrait")
-                    newOrientation = 0
                 }
 
                 Surface.ROTATION_90, Surface.ROTATION_270 -> {
                     params.y = config.landscapeY
                     windowManager.updateViewLayout(binding.root, params)
                     log(TAG, "Landscape")
-                    newOrientation = 1
                 }
-            }
-            if (orientation != newOrientation) {
-                isSideBarRun = false
-                orientation = newOrientation
-                YAMFManager.restartSideBar(binding.root, 2000)
             }
         }
 
@@ -475,32 +464,4 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
             }
         }
     }
-
-//    private fun alignCardsToStart() {
-//        val constraintLayout = binding.root
-//        val constraintSet = ConstraintSet()
-//        constraintSet.clone(constraintLayout)
-//
-//        val cards = listOf(binding.closeLayout, binding.restartSidebar, binding.closeSidebar)
-//
-//        for (card in cards) {
-//            constraintSet.clear(card.id, ConstraintSet.START)
-//
-//            constraintSet.connect(
-//                card.id,
-//                ConstraintSet.END,
-//                binding.cvSideBarMenu.id,
-//                ConstraintSet.START,
-//                3.dpToPx().toInt()
-//            )
-//
-//            card.rotationY = 180f
-//        }
-//
-//        constraintSet.applyTo(constraintLayout)
-//
-//        for (card in cards) {
-//            card.rotationY = 180f
-//        }
-//    }
 }

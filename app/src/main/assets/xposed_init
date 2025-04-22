@@ -2,3 +2,4 @@ com.mja.reyamf.xposed.hook.HookSystem
 com.mja.reyamf.xposed.hook.HookLauncher
 com.mja.reyamf.xposed.hook.HookPermission
 com.mja.reyamf.xposed.hook.HookPermissionDefault
+com.mja.reyamf.xposed.hook.HookRotation
