@@ -88,7 +88,8 @@ class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     log(TAG, "hook taskbar failed", e) }
                 if (hookPopup) runCatching { hookPopup(lpparam) }.onFailure { e ->
                     log(TAG, "hook popup failed", e) }
-//                if (hookTransientTaskbar) hookTransientTaskbar(lpparam)
+                if (hookTransientTaskbar) runCatching { hookTransientTaskbar(lpparam) }.onFailure { e ->
+                    log(TAG, "hook transient failed", e) }
                 application.unregisterReceiver(this)
             }
             application.sendBroadcast(Intent(YAMFManager.ACTION_GET_LAUNCHER_CONFIG).apply {
@@ -96,8 +97,6 @@ class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 putExtra("sender", application.packageName)
             })
         }
-
-        hookTransientTaskbar(lpparam)
     }
 
     private fun hookRecent(lpparam: XC_LoadPackage.LoadPackageParam) {
