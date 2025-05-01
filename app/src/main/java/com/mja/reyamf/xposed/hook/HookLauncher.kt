@@ -10,6 +10,7 @@ import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.UserHandle
 import android.util.Log
+import android.view.SurfaceControl
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -136,6 +137,7 @@ class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     val intent = Intent(YAMFManager.ACTION_OPEN_IN_YAMF).apply {
                         setPackage("android")
                     }
+                    val x = SurfaceControl.Builder().build()
 
                     runCatching {
                         val itemInfoTmp =
