@@ -446,32 +446,36 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
     }
 
     private fun filterApp() {
-        runMain {
-            binding.cpiLoading.visibility = View.VISIBLE
-        }
-        filteredShowApps.clear()
+        runCatching {
+            runMain {
+                binding.cpiLoading.visibility = View.VISIBLE
+            }
+            filteredShowApps.clear()
 
-        for (i in showApps.indices) {
-            for (j in config.favApps.indices) {
-                if (
-                    showApps[i].componentName.packageName == config.favApps[j].packageName &&
-                    showApps[i].userId == config.favApps[j].userId
-                ) {
-                    filteredShowApps.add(
-                        showApps[i]
-                    )
+            for (i in showApps.indices) {
+                for (j in config.favApps.indices) {
+                    if (
+                        showApps[i].componentName.packageName == config.favApps[j].packageName &&
+                        showApps[i].userId == config.favApps[j].userId
+                    ) {
+                        filteredShowApps.add(
+                            showApps[i]
+                        )
+                    }
                 }
             }
-        }
-        filteredShowApps.sortBy { it.label.toString().lowercase(Locale.ROOT) }
+            filteredShowApps.sortBy { it.label.toString().lowercase(Locale.ROOT) }
 
-        runMain {
-            binding.cpiLoading.visibility = View.GONE
-            if (filteredShowApps.isEmpty()) {
-                binding.tvEmpty.visibility = View.VISIBLE
-            } else {
-                binding.tvEmpty.visibility = View.INVISIBLE
+            runMain {
+                binding.cpiLoading.visibility = View.GONE
+                if (filteredShowApps.isEmpty()) {
+                    binding.tvEmpty.visibility = View.VISIBLE
+                } else {
+                    binding.tvEmpty.visibility = View.INVISIBLE
+                }
             }
+        }.onFailure {
+            log("SideBar", "${it.message}")
         }
     }
 }

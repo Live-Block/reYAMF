@@ -181,22 +181,26 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
 
         binding.etSearch.doOnTextChanged { text, _, _, _ ->
             text ?: return@doOnTextChanged
-            val filteredApps = apps.filter { activityInfo ->
-                text in activityInfo.packageName ||
-                        AppInfoCache.getIconLabel(activityInfo).second.contains(text, true)
-            }
-            showApps.clear()
-            filteredApps.forEach{ activityInfo ->
-                val appInfoCache = AppInfoCache.getIconLabel(activityInfo)
-                showApps.add(
-                    AppInfo(
-                        0, appInfoCache.first, appInfoCache.second, activityInfo.componentName, userId
+            runCatching {
+                val filteredApps = apps.filter { activityInfo ->
+                    text in activityInfo.packageName ||
+                            AppInfoCache.getIconLabel(activityInfo).second.contains(text, true)
+                }
+                showApps.clear()
+                filteredApps.forEach{ activityInfo ->
+                    val appInfoCache = AppInfoCache.getIconLabel(activityInfo)
+                    showApps.add(
+                        AppInfo(
+                            0, appInfoCache.first, appInfoCache.second, activityInfo.componentName, userId
+                        )
                     )
-                )
-                showApps.sortBy { it.label.toString().lowercase(Locale.ROOT) }
+                    showApps.sortBy { it.label.toString().lowercase(Locale.ROOT) }
+                }
+                rvAdapter.setData(showApps)
+                rvAdapter.notifyDataSetChanged()
+            }.onFailure {
+                log("AppListWindow", "${it.message}")
             }
-            rvAdapter.setData(showApps)
-            rvAdapter.notifyDataSetChanged()
         }
 
 
