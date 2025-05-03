@@ -59,6 +59,7 @@ A fork of YAMF (forked from [YAMFSquared](https://github.com/kaii-lb/YAMFsquared
 - Lock window DPI option
 - You tell me
 
+## Contributors List
 <!-- readme: contributors -start -->
 <table>
 	<tbody>
