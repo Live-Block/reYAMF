@@ -60,6 +60,33 @@ A fork of YAMF (forked from [YAMFSquared](https://github.com/kaii-lb/YAMFsquared
 - You tell me
 
 <!-- readme: contributors -start -->
+<table>
+	<tbody>
+		<tr>
+            <td align="center">
+                <a href="https://github.com/JuanArton">
+                    <img src="https://avatars.githubusercontent.com/u/69680526?v=4" width="100;" alt="JuanArton"/>
+                    <br />
+                    <sub><b>Juan Arton</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/duzhaokun123">
+                    <img src="https://avatars.githubusercontent.com/u/39830683?v=4" width="100;" alt="duzhaokun123"/>
+                    <br />
+                    <sub><b>o0kam1</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/No-22-Github">
+                    <img src="https://avatars.githubusercontent.com/u/132265925?v=4" width="100;" alt="No-22-Github"/>
+                    <br />
+                    <sub><b>No.22</b></sub>
+                </a>
+            </td>
+		</tr>
+	<tbody>
+</table>
 <!-- readme: contributors -end -->
 
 ## Special Thanks
