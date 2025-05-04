@@ -12,7 +12,6 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.ColorDrawable
 import android.util.Log
-import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -24,9 +23,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.github.kyuubiran.ezxhelper.utils.argTypes
 import com.github.kyuubiran.ezxhelper.utils.args
 import com.github.kyuubiran.ezxhelper.utils.invokeMethodAs
-import com.google.android.flexbox.FlexDirection
-import com.google.android.flexbox.FlexboxLayoutManager
-import com.google.android.flexbox.JustifyContent
+import com.github.kyuubiran.ezxhelper.utils.runOnMainThread
 import com.mja.reyamf.common.gson
 import com.mja.reyamf.common.model.AppInfo
 import com.mja.reyamf.common.model.FavApps
@@ -49,7 +46,14 @@ import com.mja.reyamf.xposed.utils.getActivityInfoCompat
 import com.mja.reyamf.xposed.utils.log
 import com.mja.reyamf.xposed.utils.startActivity
 import com.mja.reyamf.xposed.utils.vibratePhone
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
 
 @SuppressLint("ClickableViewAccessibility")
 class AppListWindow(val context: Context, private val displayId: Int? = null) {
@@ -63,6 +67,9 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
     private var apps = emptyList<ActivityInfo>()
     private var showApps: MutableList<AppInfo> = mutableListOf()
     private lateinit var rvAdapter: AppListAdapter
+
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private var searchJob: Job? = null
 
     init {
         runCatching {
@@ -181,25 +188,38 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
 
         binding.etSearch.doOnTextChanged { text, _, _, _ ->
             text ?: return@doOnTextChanged
-            runCatching {
-                val filteredApps = apps.filter { activityInfo ->
-                    text in activityInfo.packageName ||
-                            AppInfoCache.getIconLabel(activityInfo).second.contains(text, true)
-                }
-                showApps.clear()
-                filteredApps.forEach{ activityInfo ->
-                    val appInfoCache = AppInfoCache.getIconLabel(activityInfo)
-                    showApps.add(
-                        AppInfo(
-                            0, appInfoCache.first, appInfoCache.second, activityInfo.componentName, userId
+
+            searchJob?.cancel()
+
+            searchJob = scope.launch {
+                delay(300.milliseconds)
+
+                runCatching {
+                    val filteredApps = apps.filter { activityInfo ->
+                        text in activityInfo.packageName ||
+                                AppInfoCache.getIconLabel(activityInfo).second.contains(text, true)
+                    }
+
+                    showApps.clear()
+
+                    filteredApps.forEach { activityInfo ->
+                        val appInfoCache = AppInfoCache.getIconLabel(activityInfo)
+                        showApps.add(
+                            AppInfo(
+                                0, appInfoCache.first, appInfoCache.second, activityInfo.componentName, userId
+                            )
                         )
-                    )
+                    }
+
                     showApps.sortBy { it.label.toString().lowercase(Locale.ROOT) }
+
+                    runOnMainThread {
+                        rvAdapter.setData(showApps)
+                        rvAdapter.notifyDataSetChanged()
+                    }
+                }.onFailure {
+                    log("AppListWindow", "${it.message}")
                 }
-                rvAdapter.setData(showApps)
-                rvAdapter.notifyDataSetChanged()
-            }.onFailure {
-                log("AppListWindow", "${it.message}")
             }
         }
 
