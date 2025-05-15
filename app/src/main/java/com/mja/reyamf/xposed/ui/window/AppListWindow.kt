@@ -125,6 +125,7 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
             }
         }
         binding.mcv.setOnTouchListener { _, _ -> true }
+        binding.etSearch.isEnabled = false
         Instances.userManager.invokeMethodAs<List<UserInfo>>(
             "getUsers",
             args(true, true, true),
@@ -183,6 +184,7 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
         binding.rv.adapter = rvAdapter
         rvAdapter.setData(showApps)
         rvAdapter.notifyDataSetChanged()
+        binding.etSearch.isEnabled = true
 
         onSelectUser(0)
 
@@ -216,6 +218,7 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
                     runOnMainThread {
                         rvAdapter.setData(showApps)
                         rvAdapter.notifyDataSetChanged()
+                        binding.etSearch.isEnabled = true
                     }
                 }.onFailure {
                     log("AppListWindow", "${it.message}")
@@ -245,6 +248,7 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
     }
 
     private fun onSelectUser(userId: Int) {
+        binding.etSearch.isEnabled = false
         binding.pv.visibility = View.VISIBLE
         this.userId = userId
         binding.btnUser.text = users[userId]
@@ -275,6 +279,7 @@ class AppListWindow(val context: Context, private val displayId: Int? = null) {
                 binding.etSearch.text.clear()
                 rvAdapter.setData(showApps)
                 rvAdapter.notifyDataSetChanged()
+                binding.etSearch.isEnabled = true
                 binding.pv.visibility = View.GONE
             }
         }
