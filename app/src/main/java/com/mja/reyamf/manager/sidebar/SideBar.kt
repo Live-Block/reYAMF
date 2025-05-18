@@ -311,8 +311,12 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
                                 filterApp()
 
                                 runMain {
-                                    rvAdapter.setData(filteredShowApps)
-                                    rvAdapter.notifyDataSetChanged()
+                                    runCatching {
+                                        rvAdapter.setData(filteredShowApps)
+                                        rvAdapter.notifyDataSetChanged()
+                                    }.onFailure {
+                                        YAMFManager.restartSideBar(binding.root, 2000)
+                                    }
                                 }
                             }
                         }
@@ -329,18 +333,22 @@ class SideBar(val context: Context, private val displayId: Int? = null) {
                             }
                         }
 
-                        rvAdapter = SideBarAdapter(clickListener, arrayListOf(), longClickListener)
+                        runCatching {
+                            rvAdapter = SideBarAdapter(clickListener, arrayListOf(), longClickListener)
 
-                        binding.rvSideBarMenu.layoutManager = LinearLayoutManager(context)
-                        binding.rvSideBarMenu.adapter = rvAdapter
-                        binding.rvSideBarMenu.isVerticalScrollBarEnabled = false
+                            binding.rvSideBarMenu.layoutManager = LinearLayoutManager(context)
+                            binding.rvSideBarMenu.adapter = rvAdapter
+                            binding.rvSideBarMenu.isVerticalScrollBarEnabled = false
 
-                        if (binding.rvSideBarMenu.itemDecorationCount == 0) {
-                            binding.rvSideBarMenu.addItemDecoration(VerticalSpaceItemDecoration(8.dpToPx().toInt()))
+                            if (binding.rvSideBarMenu.itemDecorationCount == 0) {
+                                binding.rvSideBarMenu.addItemDecoration(VerticalSpaceItemDecoration(8.dpToPx().toInt()))
+                            }
+
+                            rvAdapter.setData(filteredShowApps)
+                            rvAdapter.notifyDataSetChanged()
+                        }.onFailure {
+                            YAMFManager.restartSideBar(binding.root, 2000)
                         }
-
-                        rvAdapter.setData(filteredShowApps)
-                        rvAdapter.notifyDataSetChanged()
                     }
                 }
             }

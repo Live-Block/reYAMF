@@ -2,6 +2,7 @@ package com.mja.reyamf.xposed.hook
 
 import android.content.Intent
 import android.content.pm.IPackageManager
+import android.os.Build
 import com.github.kyuubiran.ezxhelper.init.EzXHelperInit
 import com.github.kyuubiran.ezxhelper.utils.findMethod
 import com.github.kyuubiran.ezxhelper.utils.hookAfter
@@ -63,7 +64,12 @@ class HookSystem : IXposedHookZygoteInit, IXposedHookLoadPackage {
              log(TAG, "system ready")
          }
 
-        findMethod("com.android.server.am.ActivityManagerService") {
+        val checkBroadcastFromSystemPackage = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            "com.android.server.am.ActivityManagerService"
+        } else {
+            "com.android.server.am.BroadcastController"
+        }
+        findMethod(checkBroadcastFromSystemPackage) {
             name == "checkBroadcastFromSystem"
         }.hookBefore {
             val intent = it.args[0] as Intent

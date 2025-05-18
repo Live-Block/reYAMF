@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.github.kyuubiran.ezxhelper.utils.Log
 import com.mja.reyamf.R
 import com.mja.reyamf.common.model.AppInfo
 import com.mja.reyamf.databinding.SidebarItemviewBinding
@@ -16,7 +15,6 @@ class SideBarAdapter (
 ) : RecyclerView.Adapter<SideBarAdapter.ViewHolder>() {
 
     fun setData(items: List<AppInfo>?) {
-        android.util.Log.d("XPOSED", items?.size.toString())
         sideBarApp.apply {
             clear()
             items?.let { addAll(it) }

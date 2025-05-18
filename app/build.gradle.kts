@@ -11,12 +11,12 @@ android {
     val buildTime = System.currentTimeMillis()
     val baseVersionName = "0.9.8"
     namespace = "com.mja.reyamf"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.mja.reyamf"
         minSdk = 33
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "$baseVersionName-git.$gitHash${if (isDirty) "-dirty" else ""}"
 

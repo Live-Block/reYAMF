@@ -137,7 +137,6 @@ class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     val intent = Intent(YAMFManager.ACTION_OPEN_IN_YAMF).apply {
                         setPackage("android")
                     }
-                    val x = SurfaceControl.Builder().build()
 
                     runCatching {
                         val itemInfoTmp =
