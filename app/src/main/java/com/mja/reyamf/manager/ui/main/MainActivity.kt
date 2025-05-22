@@ -1,15 +1,19 @@
 package com.mja.reyamf.manager.ui.main
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
@@ -26,8 +30,10 @@ import com.mja.reyamf.common.gson
 import com.mja.reyamf.common.model.Config
 import com.mja.reyamf.common.runMain
 import com.mja.reyamf.databinding.ActivityMainBinding
+import com.mja.reyamf.manager.applist.AppListWindowUserspace
 import com.mja.reyamf.manager.services.YAMFManagerProxy
-import com.mja.reyamf.manager.sidebar.SideBar
+import com.mja.reyamf.manager.sidebar.Action
+import com.mja.reyamf.manager.sidebar.SidebarUserSpace
 import com.mja.reyamf.manager.ui.setting.SettingActivity
 import com.mja.reyamf.manager.utils.TipUtil
 import com.mja.reyamf.xposed.IOpenCountListener
@@ -42,6 +48,7 @@ class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding
     lateinit var config: Config
+    private val CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084
 
     companion object {
         const val TAG = "reYAMF_MainActivity"
@@ -74,6 +81,14 @@ class MainActivity : AppCompatActivity() {
 
         YAMFManagerProxy.registerOpenCountListener(openCountListener)
         initUi()
+
+        if (!Settings.canDrawOverlays(this)) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            )
+            startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION)
+        } else {}
     }
 
     private fun initUi() {
@@ -145,7 +160,7 @@ class MainActivity : AppCompatActivity() {
 
         binding?.apply {
             btLaunchSideBar.setOnClickListener {
-                YAMFManagerProxy.launchSideBar()
+                launchSidebar(Action.START.name)
             }
 
             msSideBar.isChecked = config.launchSideBarAtBoot
@@ -159,9 +174,9 @@ class MainActivity : AppCompatActivity() {
                 config.sidebarPosition = isChecked
                 YAMFManagerProxy.updateConfig(gson.toJson(config))
                 CoroutineScope(Dispatchers.IO).launch {
-                    YAMFManagerProxy.killSideBar()
+                    launchSidebar(Action.STOP.name)
                     delay(1000)
-                    YAMFManagerProxy.launchSideBar()
+                    launchSidebar(Action.START.name)
                 }
             }
 
@@ -197,18 +212,25 @@ class MainActivity : AppCompatActivity() {
                     tvTransparencyValue.text = "${slider.value.toInt()}"
                     config.sidebarTransparency = slider.value.toInt()
                     YAMFManagerProxy.updateConfig(gson.toJson(config))
-                    YAMFManagerProxy.killSideBar()
+                    launchSidebar(Action.STOP.name)
 
                     Handler(Looper.getMainLooper()).postDelayed({
                         try {
-                            Log.d(SideBar.TAG, "updateConfig: restart")
-                            YAMFManagerProxy.launchSideBar()
+                            launchSidebar(Action.START.name)
                         } catch (e: Exception) {
-                            log(SideBar.TAG, "Failed restart sidebar")
                         }
                     }, 500)
                 }
             })
+        }
+    }
+
+    private fun launchSidebar(action: String) {
+        Intent(this, SidebarUserSpace::class.java).also {
+            it.action = action
+            Log.d("reYAMF", "Starting the service in >=26 Mode from a BroadcastReceiver")
+            this.startForegroundService(it)
+            return
         }
     }
 
@@ -230,7 +252,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.open_app_list -> {
-                YAMFManagerProxy.openAppList()
+                startService(Intent(this, AppListWindowUserspace::class.java))
                 true
             }
             R.id.settings -> {
@@ -254,6 +276,24 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             else -> false
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
+            if (resultCode == RESULT_OK) {
+                //startService(Intent(this, SidebarUserSpace::class.java))
+            } else {
+                Toast.makeText(
+                    this,
+                    "Draw over other app permission not available. Closing the application",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                finish()
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
         }
     }
 

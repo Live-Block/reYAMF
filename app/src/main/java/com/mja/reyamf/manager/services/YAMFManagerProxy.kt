@@ -3,6 +3,7 @@ package com.mja.reyamf.manager.services
 import android.os.IBinder
 import android.os.IBinder.DeathRecipient
 import android.util.Log
+import com.mja.reyamf.common.model.AppInfo
 import com.mja.reyamf.xposed.IOpenCountListener
 import com.mja.reyamf.xposed.IYAMFManager
 import java.lang.reflect.InvocationHandler
@@ -75,10 +76,6 @@ object YAMFManagerProxy : IYAMFManager, DeathRecipient {
         service?.unregisterOpenCountListener(iOpenCountListener)
     }
 
-    override fun openAppList() {
-        service?.openAppList()
-    }
-
     override fun currentToWindow() {
         service?.currentToWindow()
     }
@@ -87,11 +84,11 @@ object YAMFManagerProxy : IYAMFManager, DeathRecipient {
         service?.resetAllWindow()
     }
 
-    override fun launchSideBar() {
-        service?.launchSideBar()
+    override fun getAppList(): List<AppInfo?>? {
+        return service?.getAppList()
     }
 
-    override fun killSideBar() {
-        service?.killSideBar()
+    override fun createWindowUserspace(appInfo: AppInfo?) {
+        service?.createWindowUserspace(appInfo)
     }
- }
+}

@@ -2,17 +2,11 @@ package com.mja.reyamf.manager.ui.setting
 
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.res.ColorStateList
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -23,8 +17,6 @@ import com.mja.reyamf.R
 import com.mja.reyamf.common.gson
 import com.mja.reyamf.databinding.ActivitySettingBinding
 import com.mja.reyamf.manager.services.YAMFManagerProxy
-import com.mja.reyamf.manager.sidebar.SideBar
-import com.mja.reyamf.xposed.utils.log
 import com.mja.reyamf.common.model.Config as YAMFConfig
 
 class SettingActivity : AppCompatActivity() {

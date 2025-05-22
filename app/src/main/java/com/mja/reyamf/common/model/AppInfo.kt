@@ -1,16 +1,12 @@
 package com.mja.reyamf.common.model
 
-import android.content.ComponentName
-import android.graphics.drawable.Drawable
+import android.content.pm.ActivityInfo
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import kotlinx.parcelize.RawValue
 
 @Parcelize
 data class AppInfo(
-    val id: Int,
-    val icon: @RawValue Drawable,
-    val label: CharSequence,
-    val componentName: ComponentName,
-    val userId: Int
+    val activityInfo: ActivityInfo,
+    val userId: Int,
+    val userName: String
 ) : Parcelable

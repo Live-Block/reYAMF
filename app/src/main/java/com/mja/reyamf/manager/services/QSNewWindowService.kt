@@ -7,7 +7,7 @@ class QSNewWindowService : TileService() {
     override fun onClick() {
         super.onClick()
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("useAppList", true))
-            YAMFManagerProxy.openAppList()
+            //YAMFManagerProxy.openAppList() //TODO: Apply in userspace
         else YAMFManagerProxy.createWindow()
     }
 }

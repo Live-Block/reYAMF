@@ -11,8 +11,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.mja.reyamf.R
+import com.mja.reyamf.application
 import com.mja.reyamf.common.runMain
-import com.mja.reyamf.manager.application
 
 object TipUtil {
     private val map = mutableMapOf<Int, CoordinatorLayout>()

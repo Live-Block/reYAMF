@@ -64,6 +64,7 @@ import com.mja.reyamf.xposed.utils.animateResize
 import com.mja.reyamf.xposed.utils.animateScaleThenResize
 import com.mja.reyamf.xposed.utils.dpToPx
 import com.mja.reyamf.xposed.utils.getActivityInfoCompat
+import com.mja.reyamf.xposed.utils.log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -355,6 +356,9 @@ class AppWindow(
                 }
 
                 isResize = true
+            }
+            binding.root.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
+                Log.d("TAG", "Focus changed: $hasFocus")
             }
         }
     }

@@ -1,9 +1,12 @@
 package com.mja.reyamf.manager.adapter
 
+import android.content.pm.ActivityInfo
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.wear.widget.RoundedDrawable
 import com.mja.reyamf.R
 import com.mja.reyamf.common.model.AppInfo
 import com.mja.reyamf.databinding.ItemAppBinding
@@ -35,8 +38,9 @@ class AppListAdapter (
         private val binding = ItemAppBinding.bind(itemView)
         fun bind(appInfo: AppInfo){
             binding.apply {
-                val icon = appInfo.icon
-                val label = appInfo.label
+                val info = getIconLabel(appInfo.activityInfo)
+                val icon = info.first
+                val label = info.second
                 ivIcon.setImageDrawable(icon)
                 tvLabel.text = label
 
@@ -49,6 +53,18 @@ class AppListAdapter (
                     true
                 }
             }
+        }
+
+        fun getIconLabel(info: ActivityInfo): Pair<Drawable, CharSequence> {
+            val pm = binding.root.context.packageManager
+            return Pair(
+                RoundedDrawable().apply {
+                    isClipEnabled = true
+                    radius = 100
+                    drawable = info.loadIcon(pm)
+                },
+                info.loadLabel(pm)
+            )
         }
     }
 

@@ -59,4 +59,5 @@
     <string name="window_rounded_corner">窗口圆角大小</string>
     <string name="_20">20</string>
     <string name="sidebar_position">右置侧边栏</string>
+    <string name="app_added_to_sidebar">App added to sidebar</string>
 </resources>

@@ -4,7 +4,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.rikka.tools.refine)
-    id("kotlin-parcelize")
+    alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hiltAndroid)
 }
 
 android {
@@ -103,6 +105,19 @@ dependencies {
 
     // byte buddy
     implementation(libs.byte.buddy.android)
+
+    //lifecycle service
+    implementation(libs.androidx.lifecycle.service)
+
+    //room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    //hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    ksp(libs.androidx.hilt.compiler)
 }
 
 val gitHash: String

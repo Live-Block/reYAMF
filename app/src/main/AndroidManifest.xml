@@ -4,9 +4,12 @@
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
-        android:name=".manager.Application"
+        android:name=".Reyamf"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -16,6 +19,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Reyamf"
         tools:targetApi="35">
+        <service
+            android:name=".manager.applist.AppListWindowUserspace"
+            android:enabled="true"
+            android:exported="true"/>
+
+        <service
+            android:name=".manager.sidebar.SidebarUserSpace"
+            android:foregroundServiceType="specialUse"
+            android:enabled="true"
+            android:exported="true" />
 
         <activity
             android:name=".manager.ui.setting.SettingActivity"
@@ -84,12 +97,6 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
-
-
-        <service
-            android:name=".manager.services.SidebarHiderService"
-            android:enabled="true"
-            android:exported="true" />
 
         <receiver
             android:name=".manager.broadcastreceiver.BootReceiver"

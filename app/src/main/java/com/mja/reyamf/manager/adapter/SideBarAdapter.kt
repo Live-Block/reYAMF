@@ -1,9 +1,12 @@
 package com.mja.reyamf.manager.adapter
 
+import android.content.pm.ActivityInfo
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import androidx.wear.widget.RoundedDrawable
 import com.mja.reyamf.R
 import com.mja.reyamf.common.model.AppInfo
 import com.mja.reyamf.databinding.SidebarItemviewBinding
@@ -11,7 +14,7 @@ import com.mja.reyamf.databinding.SidebarItemviewBinding
 class SideBarAdapter (
     private val onClick: (AppInfo) -> Unit,
     private val sideBarApp: ArrayList<AppInfo>,
-    private val onLongClick: (Int) -> Unit
+    private val onLongClick: (AppInfo) -> Unit
 ) : RecyclerView.Adapter<SideBarAdapter.ViewHolder>() {
 
     fun setData(items: List<AppInfo>?) {
@@ -37,19 +40,32 @@ class SideBarAdapter (
         private val binding = SidebarItemviewBinding.bind(itemView)
         fun bind(appInfo: AppInfo){
             binding.apply {
-                ivAppIcon.setImageDrawable(appInfo.icon)
+                ivAppIcon.setImageDrawable(getIconLabel(appInfo.activityInfo).first)
                 ivAppIcon.setOnClickListener {
                     onClick(appInfo)
                 }
                 ivAppIcon.setOnLongClickListener {
-                    onLongClick(adapterPosition)
+                    onLongClick(appInfo)
                     true
                 }
                 if (appInfo.userId == 0) {
                     ivWorkIcon.visibility = View.INVISIBLE
+                } else {
+                    ivWorkIcon.visibility = View.VISIBLE
                 }
             }
         }
-    }
 
+        fun getIconLabel(info: ActivityInfo): Pair<Drawable, CharSequence> {
+            val pm = binding.root.context.packageManager
+            return Pair(
+                RoundedDrawable().apply {
+                    isClipEnabled = true
+                    radius = 100
+                    drawable = info.loadIcon(pm)
+                },
+                info.loadLabel(pm)
+            )
+        }
+    }
 }

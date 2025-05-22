@@ -2,6 +2,7 @@
 package com.mja.reyamf.xposed;
 
 import com.mja.reyamf.xposed.IOpenCountListener;
+import com.mja.reyamf.common.model.AppInfo;
 // Declare any non-default types here with import statements
 
 interface IYAMFManager {
@@ -23,13 +24,11 @@ interface IYAMFManager {
 
     void unregisterOpenCountListener(IOpenCountListener iOpenCountListener);
 
-    void openAppList();
-
     void currentToWindow();
 
     void resetAllWindow();
 
-    void launchSideBar();
+    List<AppInfo> getAppList();
 
-    void killSideBar();
+    void createWindowUserspace(in AppInfo appInfo);
 }

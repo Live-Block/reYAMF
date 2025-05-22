@@ -5,8 +5,10 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
+import android.content.pm.ActivityInfo
+import android.content.pm.IPackageManagerHidden
+import android.content.pm.PackageManagerHidden
+import android.content.pm.UserInfo
 import android.os.Process
 import android.os.SystemClock
 import android.util.Log
@@ -16,28 +18,33 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.github.kyuubiran.ezxhelper.utils.argTypes
 import com.github.kyuubiran.ezxhelper.utils.args
 import com.github.kyuubiran.ezxhelper.utils.invokeMethod
+import com.github.kyuubiran.ezxhelper.utils.invokeMethodAs
 import com.mja.reyamf.BuildConfig
 import com.mja.reyamf.common.gson
+import com.mja.reyamf.common.model.AppInfo
 import com.mja.reyamf.common.model.Config
 import com.mja.reyamf.common.model.StartCmd
 import com.mja.reyamf.common.runMain
-import com.mja.reyamf.manager.sidebar.SideBar
 import com.mja.reyamf.xposed.IOpenCountListener
 import com.mja.reyamf.xposed.IYAMFManager
 import com.mja.reyamf.xposed.hook.HookLauncher
-import com.mja.reyamf.xposed.ui.window.AppListWindow
 import com.mja.reyamf.xposed.ui.window.AppWindow
 import com.mja.reyamf.xposed.utils.Instances
 import com.mja.reyamf.xposed.utils.Instances.systemContext
 import com.mja.reyamf.xposed.utils.Instances.systemUiContext
+import com.mja.reyamf.xposed.utils.componentName
 import com.mja.reyamf.xposed.utils.createContext
+import com.mja.reyamf.xposed.utils.getActivityInfoCompat
 import com.mja.reyamf.xposed.utils.getTopRootTask
 import com.mja.reyamf.xposed.utils.log
 import com.mja.reyamf.xposed.utils.registerReceiver
 import com.mja.reyamf.xposed.utils.startAuto
 import com.qauxv.ui.CommonContextWrapper
+import kotlinx.coroutines.runBlocking
 import rikka.hidden.compat.ActivityManagerApis
 import java.io.File
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 object YAMFManager : IYAMFManager.Stub() {
@@ -46,9 +53,7 @@ object YAMFManager : IYAMFManager.Stub() {
     const val ACTION_GET_LAUNCHER_CONFIG = "com.mja.reyamf.ACTION_GET_LAUNCHER_CONFIG"
     const val ACTION_OPEN_APP = "com.mja.reyamf.action.OPEN_APP"
     private const val ACTION_CURRENT_TO_WINDOW = "com.mja.reyamf.action.CURRENT_TO_WINDOW"
-    private const val ACTION_OPEN_APP_LIST = "com.mja.reyamf.action.OPEN_APP_LIST"
     const val ACTION_OPEN_IN_YAMF = "com.mja.reyamf.ACTION_OPEN_IN_YAMF"
-    private const val ACTION_LAUNCH_SIDE_BAR = "com.mja.reyamf.action.LAUNCH_SIDE_BAR"
 
     const val EXTRA_COMPONENT_NAME = "componentName"
     const val EXTRA_USER_ID = "userId"
@@ -76,12 +81,6 @@ object YAMFManager : IYAMFManager.Stub() {
         systemContext.registerReceiver(ACTION_CURRENT_TO_WINDOW) { _, _ ->
             currentToWindow()
         }
-        systemContext.registerReceiver(ACTION_OPEN_APP_LIST) { _, _ ->
-            AppListWindow(
-                CommonContextWrapper.createAppCompatContext(systemUiContext.createContext()),
-                null
-            )
-        }
         systemContext.registerReceiver(ACTION_OPEN_APP) { _, intent ->
             val componentName = intent.getParcelableExtra<ComponentName>(EXTRA_COMPONENT_NAME)
                 ?: return@registerReceiver
@@ -98,17 +97,11 @@ object YAMFManager : IYAMFManager.Stub() {
                 `package` = intent.getStringExtra("sender")
             }, 0)
         }
-        systemContext.registerReceiver(ACTION_LAUNCH_SIDE_BAR) { _, _ ->
-            SideBar(
-                CommonContextWrapper.createAppCompatContext(systemUiContext.createContext()),
-                null
-            )
-        }
+
         configFile.createNewFile()
         config = runCatching {
             gson.fromJson(configFile.readText(), Config::class.java)
         }.getOrNull() ?: Config()
-
         log(TAG, "config: $config")
     }
 
@@ -146,20 +139,6 @@ object YAMFManager : IYAMFManager.Stub() {
             addWindow(displayId)
             startCmd?.startAuto(displayId)
         }
-    }
-
-    fun restartSideBar(sidebar: ConstraintLayout, duration: Long) {
-        sidebarLayout = null
-        Handler(Looper.getMainLooper()).postDelayed({
-            try {
-                Log.d(SideBar.TAG, "updateConfig: restart")
-                launchSideBar()
-            } catch (e: Exception) {
-                log(SideBar.TAG, "Failed restart sidebar")
-            }
-
-        }, duration)
-        Instances.windowManager.removeView(sidebar)
     }
 
     fun sideBarUpdateConfig(newConfig: String) {
@@ -217,16 +196,6 @@ object YAMFManager : IYAMFManager.Stub() {
         iOpenCountListenerSet.remove(iOpenCountListener)
     }
 
-    override fun openAppList() {
-        runMain {
-            Instances.iStatusBarService.collapsePanels()
-            AppListWindow(
-                CommonContextWrapper.createAppCompatContext(systemUiContext.createContext()),
-                null
-            )
-        }
-    }
-
     override fun currentToWindow() {
         runMain {
             val task = getTopRootTask(0) ?: return@runMain
@@ -244,19 +213,58 @@ object YAMFManager : IYAMFManager.Stub() {
         }
     }
 
-    override fun killSideBar() {
-        if (isSideBarRun && sidebarLayout != null) {
-            isSideBarRun = false
-            Instances.windowManager.removeView(sidebarLayout)
+    suspend fun getApp(): List<AppInfo?>? = suspendCoroutine { cont ->
+        var apps: List<ActivityInfo>
+        val showApps: MutableList<AppInfo> = mutableListOf()
+        val users = mutableMapOf<Int, String>()
+
+        runMain {
+            Instances.userManager.invokeMethodAs<List<UserInfo>>(
+                "getUsers",
+                args(true, true, true),
+                argTypes(java.lang.Boolean.TYPE, java.lang.Boolean.TYPE, java.lang.Boolean.TYPE)
+            )!!
+                .filter { it.isProfile || it.isPrimary }
+                .forEach {
+                    users[it.id] = it.name
+                }
+
+            users.forEach { usr ->
+                apps = (Instances.packageManager as PackageManagerHidden).queryIntentActivitiesAsUser(
+                    Intent(Intent.ACTION_MAIN).apply {
+                        addCategory(Intent.CATEGORY_LAUNCHER)
+                    }, 0, usr.key
+                ).map {
+                    (Instances.iPackageManager as IPackageManagerHidden).getActivityInfoCompat(
+                        ComponentName(it.activityInfo.packageName, it.activityInfo.name),
+                        0, usr.key
+                    )
+                }
+
+                apps.forEach { activityInfo ->
+                    showApps.add(
+                        AppInfo(
+                            activityInfo, usr.key, usr.value
+                        )
+                    )
+                }
+            }
+
+            cont.resume(showApps)
         }
     }
 
-    override fun launchSideBar() {
+    override fun getAppList(): List<AppInfo?>? {
+        return runBlocking {
+            getApp()
+        }
+    }
+
+    override fun createWindowUserspace(appInfo: AppInfo?) {
         runMain {
-            SideBar(
-                CommonContextWrapper.createAppCompatContext(systemUiContext.createContext()),
-                null
-            )
+            appInfo?.let {
+                createWindow(StartCmd(it.activityInfo.componentName, it.userId))
+            }
         }
     }
 
