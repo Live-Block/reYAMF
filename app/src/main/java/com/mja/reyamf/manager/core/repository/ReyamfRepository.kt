@@ -25,11 +25,7 @@ class ReyamfRepository @Inject constructor(
         flow {
             emit(
                 localDataSource.getAllAppInfo().map {
-                    AppInfo(
-                        it.activityInfo,
-                        it.userId,
-                        it.userName
-                    )
+                    DataMapper.appInfoEntityToModel(it)
                 }
             )
         }.flowOn(Dispatchers.IO)

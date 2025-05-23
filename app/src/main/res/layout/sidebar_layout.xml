@@ -5,6 +5,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="top|start"
+    android:animateLayoutChanges="false"
+    android:background="@android:color/transparent"
     xmlns:tools="http://schemas.android.com/tools">
 
     <View
@@ -32,7 +34,7 @@
             app:cardBackgroundColor="?attr/colorSurface"
             app:cardCornerRadius="20dp"
             app:strokeColor="@color/transparentOutline"
-            app:strokeWidth="0dp">
+            app:strokeWidth="1dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/sideBarMenu"
@@ -70,7 +72,7 @@
                         <ImageView
                             android:id="@+id/iv_extra_tool"
                             android:layout_width="35dp"
-                            android:layout_height="25dp"
+                            android:layout_height="35dp"
                             android:layout_marginTop="8dp"
                             android:background="@android:color/transparent"
                             android:src="@drawable/three_dot_horiz"
@@ -157,7 +159,7 @@
                     android:background="@android:color/transparent"
                     android:src="@drawable/baseline_restart_alt_24"
                     app:layout_constraintEnd_toStartOf="@+id/ib_app_list"
-                    app:layout_constraintStart_toEndOf="@+id/ib_kill_sidebar"
+                    app:layout_constraintStart_toEndOf="@+id/ib_extra_menu"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton

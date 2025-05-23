@@ -1,6 +1,5 @@
 package com.mja.reyamf.manager.ui.main
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -30,14 +29,13 @@ import com.mja.reyamf.common.gson
 import com.mja.reyamf.common.model.Config
 import com.mja.reyamf.common.runMain
 import com.mja.reyamf.databinding.ActivityMainBinding
-import com.mja.reyamf.manager.applist.AppListWindowUserspace
+import com.mja.reyamf.manager.applist.AppListWindow
 import com.mja.reyamf.manager.services.YAMFManagerProxy
 import com.mja.reyamf.manager.sidebar.Action
-import com.mja.reyamf.manager.sidebar.SidebarUserSpace
+import com.mja.reyamf.manager.sidebar.SidebarUser
 import com.mja.reyamf.manager.ui.setting.SettingActivity
 import com.mja.reyamf.manager.utils.TipUtil
 import com.mja.reyamf.xposed.IOpenCountListener
-import com.mja.reyamf.xposed.utils.log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -226,7 +224,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun launchSidebar(action: String) {
-        Intent(this, SidebarUserSpace::class.java).also {
+        Intent(this, SidebarUser::class.java).also {
             it.action = action
             Log.d("reYAMF", "Starting the service in >=26 Mode from a BroadcastReceiver")
             this.startForegroundService(it)
@@ -252,7 +250,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.open_app_list -> {
-                startService(Intent(this, AppListWindowUserspace::class.java))
+                startService(Intent(this, AppListWindow::class.java))
                 true
             }
             R.id.settings -> {

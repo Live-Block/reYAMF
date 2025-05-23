@@ -17,13 +17,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/ivWorkIcon"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:src="@drawable/work_icon"
-        android:elevation="2dp"
-        app:layout_constraintBottom_toBottomOf="@+id/ivAppIcon"
-        app:layout_constraintEnd_toEndOf="@+id/ivAppIcon" />
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/mcvWorkIconBg"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_margin="0dp"
+        app:cardBackgroundColor="?cardBackgroundColor"
+        app:strokeWidth="2dp"
+        app:strokeColor="?attr/colorSurface"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/ivAppIcon"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/ivWorkIcon"
+            android:layout_width="13dp"
+            android:layout_height="13dp"
+            android:layout_gravity="center"
+            android:src="@drawable/work_icon" />
+
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

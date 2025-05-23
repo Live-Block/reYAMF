@@ -1,7 +1,9 @@
 package com.mja.reyamf.manager.adapter
 
 import android.content.pm.ActivityInfo
+import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,10 +50,11 @@ class SideBarAdapter (
                     onLongClick(appInfo)
                     true
                 }
+
                 if (appInfo.userId == 0) {
-                    ivWorkIcon.visibility = View.INVISIBLE
+                    mcvWorkIconBg.visibility = View.INVISIBLE
                 } else {
-                    ivWorkIcon.visibility = View.VISIBLE
+                    mcvWorkIconBg.visibility = View.VISIBLE
                 }
             }
         }

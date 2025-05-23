@@ -25,6 +25,7 @@ import com.mja.reyamf.common.model.AppInfo
 import com.mja.reyamf.common.model.Config
 import com.mja.reyamf.common.model.StartCmd
 import com.mja.reyamf.common.runMain
+import com.mja.reyamf.xposed.IAppListCallback
 import com.mja.reyamf.xposed.IOpenCountListener
 import com.mja.reyamf.xposed.IYAMFManager
 import com.mja.reyamf.xposed.hook.HookLauncher
@@ -40,6 +41,7 @@ import com.mja.reyamf.xposed.utils.log
 import com.mja.reyamf.xposed.utils.registerReceiver
 import com.mja.reyamf.xposed.utils.startAuto
 import com.qauxv.ui.CommonContextWrapper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import rikka.hidden.compat.ActivityManagerApis
 import java.io.File
@@ -213,12 +215,24 @@ object YAMFManager : IYAMFManager.Stub() {
         }
     }
 
-    suspend fun getApp(): List<AppInfo?>? = suspendCoroutine { cont ->
-        var apps: List<ActivityInfo>
-        val showApps: MutableList<AppInfo> = mutableListOf()
-        val users = mutableMapOf<Int, String>()
+    override fun getAppList(): List<AppInfo?>? {
+        return listOf()
+    }
 
+    override fun createWindowUserspace(appInfo: AppInfo?) {
         runMain {
+            appInfo?.let {
+                createWindow(StartCmd(it.activityInfo.componentName, it.userId))
+            }
+        }
+    }
+
+    override fun getAppListAsync(callback: IAppListCallback) {
+        runMain {
+            val runtime = Runtime.getRuntime()
+            var apps: List<ActivityInfo>
+            val showApps: MutableList<AppInfo> = mutableListOf()
+            val users = mutableMapOf<Int, String>()
             Instances.userManager.invokeMethodAs<List<UserInfo>>(
                 "getUsers",
                 args(true, true, true),
@@ -250,21 +264,11 @@ object YAMFManager : IYAMFManager.Stub() {
                 }
             }
 
-            cont.resume(showApps)
-        }
-    }
-
-    override fun getAppList(): List<AppInfo?>? {
-        return runBlocking {
-            getApp()
-        }
-    }
-
-    override fun createWindowUserspace(appInfo: AppInfo?) {
-        runMain {
-            appInfo?.let {
-                createWindow(StartCmd(it.activityInfo.componentName, it.userId))
+            showApps.chunked(5).forEach { chunk ->
+                callback.onAppListReceived(chunk.toMutableList())
             }
+
+            callback.onAppListFinished()
         }
     }
 

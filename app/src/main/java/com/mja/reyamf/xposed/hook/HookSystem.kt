@@ -64,17 +64,19 @@ class HookSystem : IXposedHookZygoteInit, IXposedHookLoadPackage {
              log(TAG, "system ready")
          }
 
-        val checkBroadcastFromSystemPackage = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            "com.android.server.am.ActivityManagerService"
-        } else {
+        val targetClasses = listOf(
+            "com.android.server.am.ActivityManagerService",
             "com.android.server.am.BroadcastController"
-        }
-        findMethod(checkBroadcastFromSystemPackage) {
-            name == "checkBroadcastFromSystem"
-        }.hookBefore {
+        )
+
+        targetClasses.firstNotNullOfOrNull { className ->
+            runCatching {
+                findMethod(className) { name == "checkBroadcastFromSystem" }
+            }.getOrNull()
+        }?.hookBefore {
             val intent = it.args[0] as Intent
             if (intent.action == HookLauncher.ACTION_RECEIVE_LAUNCHER_CONFIG)
-                it.result = Unit // bypass check
+                it.result = Unit
         }
     }
 }

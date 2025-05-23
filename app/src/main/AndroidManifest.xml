@@ -20,12 +20,12 @@
         android:theme="@style/Theme.Reyamf"
         tools:targetApi="35">
         <service
-            android:name=".manager.applist.AppListWindowUserspace"
+            android:name=".manager.applist.AppListWindow"
             android:enabled="true"
             android:exported="true"/>
 
         <service
-            android:name=".manager.sidebar.SidebarUserSpace"
+            android:name=".manager.sidebar.SidebarUser"
             android:foregroundServiceType="specialUse"
             android:enabled="true"
             android:exported="true" />

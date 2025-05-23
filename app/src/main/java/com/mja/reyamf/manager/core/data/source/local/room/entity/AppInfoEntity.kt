@@ -6,7 +6,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "sidebarApp")
 data class AppInfoEntity(
-    @PrimaryKey val activityInfo: ActivityInfo,
+    @PrimaryKey
+    val activityInfo: ActivityInfo,
     val userId: Int,
     val userName: String
 )
