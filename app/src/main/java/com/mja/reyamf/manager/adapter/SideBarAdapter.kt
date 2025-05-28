@@ -1,17 +1,30 @@
 package com.mja.reyamf.manager.adapter
 
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.graphics.PorterDuff
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.RoundedDrawable
 import com.mja.reyamf.R
 import com.mja.reyamf.common.model.AppInfo
 import com.mja.reyamf.databinding.SidebarItemviewBinding
+import com.mja.reyamf.manager.services.YAMFManagerProxy
+import com.mja.reyamf.xposed.IAppIconCallback
+import com.mja.reyamf.xposed.IAppListCallback
+import com.mja.reyamf.xposed.utils.componentName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SideBarAdapter (
     private val onClick: (AppInfo) -> Unit,
@@ -42,7 +55,26 @@ class SideBarAdapter (
         private val binding = SidebarItemviewBinding.bind(itemView)
         fun bind(appInfo: AppInfo){
             binding.apply {
-                ivAppIcon.setImageDrawable(getIconLabel(appInfo.activityInfo).first)
+//                YAMFManagerProxy.getAppIcon(object : IAppIconCallback.Stub() {
+//                    override fun onResult(iconData: ByteArray?) {
+//                        CoroutineScope(Dispatchers.Main).launch {
+//                            if (iconData != null) {
+//                                val bitmap = BitmapFactory.decodeByteArray(iconData, 0, iconData.size)
+//                                ivAppIcon.setImageBitmap(bitmap)
+//                            } else {
+//                                ivAppIcon.setImageResource(R.drawable.work_icon)
+//                            }
+//                        }
+//                    }
+//                }, appInfo)
+
+                val iconDrawable = try {
+                    binding.root.context.packageManager.getActivityIcon(appInfo.activityInfo.componentName)
+                } catch (e: PackageManager.NameNotFoundException) {
+                    ContextCompat.getDrawable(binding.root.context, R.drawable.work_icon)
+                }
+                ivAppIcon.setImageDrawable(iconDrawable)
+
                 ivAppIcon.setOnClickListener {
                     onClick(appInfo)
                 }
@@ -59,16 +91,13 @@ class SideBarAdapter (
             }
         }
 
-        fun getIconLabel(info: ActivityInfo): Pair<Drawable, CharSequence> {
-            val pm = binding.root.context.packageManager
-            return Pair(
-                RoundedDrawable().apply {
-                    isClipEnabled = true
-                    radius = 100
-                    drawable = info.loadIcon(pm)
-                },
-                info.loadLabel(pm)
-            )
+        fun parseComponentInfo(componentInfo: String): Pair<String, String>? {
+            val regex = Regex("ComponentInfo\\{(.+?)/(.+?)\\}")
+            val match = regex.find(componentInfo)
+            return match?.let {
+                val (packageName, className) = it.destructured
+                packageName to className
+            }
         }
     }
 }

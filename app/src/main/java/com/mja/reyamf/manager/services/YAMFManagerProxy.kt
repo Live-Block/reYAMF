@@ -4,6 +4,7 @@ import android.os.IBinder
 import android.os.IBinder.DeathRecipient
 import android.util.Log
 import com.mja.reyamf.common.model.AppInfo
+import com.mja.reyamf.xposed.IAppIconCallback
 import com.mja.reyamf.xposed.IAppListCallback
 import com.mja.reyamf.xposed.IOpenCountListener
 import com.mja.reyamf.xposed.IYAMFManager
@@ -95,5 +96,9 @@ object YAMFManagerProxy : IYAMFManager, DeathRecipient {
 
     override fun getAppListAsync(callback: IAppListCallback) {
         service?.getAppListAsync(callback)
+    }
+
+    override fun getAppIcon(callback: IAppIconCallback, appInfo: AppInfo) {
+        service?.getAppIcon(callback, appInfo)
     }
 }

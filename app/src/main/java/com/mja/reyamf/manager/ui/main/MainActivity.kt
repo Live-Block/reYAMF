@@ -32,7 +32,7 @@ import com.mja.reyamf.databinding.ActivityMainBinding
 import com.mja.reyamf.manager.applist.AppListWindow
 import com.mja.reyamf.manager.services.YAMFManagerProxy
 import com.mja.reyamf.manager.sidebar.Action
-import com.mja.reyamf.manager.sidebar.SidebarUser
+import com.mja.reyamf.manager.sidebar.SidebarService
 import com.mja.reyamf.manager.ui.setting.SettingActivity
 import com.mja.reyamf.manager.utils.TipUtil
 import com.mja.reyamf.xposed.IOpenCountListener
@@ -224,7 +224,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun launchSidebar(action: String) {
-        Intent(this, SidebarUser::class.java).also {
+        Intent(this, SidebarService::class.java).also {
             it.action = action
             Log.d("reYAMF", "Starting the service in >=26 Mode from a BroadcastReceiver")
             this.startForegroundService(it)

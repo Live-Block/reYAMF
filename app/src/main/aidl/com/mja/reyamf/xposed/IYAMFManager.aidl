@@ -4,6 +4,7 @@ package com.mja.reyamf.xposed;
 import com.mja.reyamf.xposed.IOpenCountListener;
 import com.mja.reyamf.common.model.AppInfo;
 import com.mja.reyamf.xposed.IAppListCallback;
+import com.mja.reyamf.xposed.IAppIconCallback;
 // Declare any non-default types here with import statements
 
 interface IYAMFManager {
@@ -34,4 +35,6 @@ interface IYAMFManager {
     void createWindowUserspace(in AppInfo appInfo);
 
     void getAppListAsync(IAppListCallback callback);
+
+    void getAppIcon(IAppIconCallback callback, in AppInfo appInfo);
 }

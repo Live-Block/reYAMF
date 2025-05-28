@@ -9,6 +9,11 @@ import android.content.pm.ActivityInfo
 import android.content.pm.IPackageManagerHidden
 import android.content.pm.PackageManagerHidden
 import android.content.pm.UserInfo
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.AdaptiveIconDrawable
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Process
 import android.os.SystemClock
 import android.util.Log
@@ -25,6 +30,7 @@ import com.mja.reyamf.common.model.AppInfo
 import com.mja.reyamf.common.model.Config
 import com.mja.reyamf.common.model.StartCmd
 import com.mja.reyamf.common.runMain
+import com.mja.reyamf.xposed.IAppIconCallback
 import com.mja.reyamf.xposed.IAppListCallback
 import com.mja.reyamf.xposed.IOpenCountListener
 import com.mja.reyamf.xposed.IYAMFManager
@@ -44,6 +50,7 @@ import com.qauxv.ui.CommonContextWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import rikka.hidden.compat.ActivityManagerApis
+import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -229,7 +236,6 @@ object YAMFManager : IYAMFManager.Stub() {
 
     override fun getAppListAsync(callback: IAppListCallback) {
         runMain {
-            val runtime = Runtime.getRuntime()
             var apps: List<ActivityInfo>
             val showApps: MutableList<AppInfo> = mutableListOf()
             val users = mutableMapOf<Int, String>()
@@ -269,6 +275,38 @@ object YAMFManager : IYAMFManager.Stub() {
             }
 
             callback.onAppListFinished()
+        }
+    }
+
+    override fun getAppIcon(callback: IAppIconCallback, appInfo: AppInfo) {
+        runMain {
+            val drawable = appInfo.activityInfo.loadIcon(Instances.packageManager)
+
+            val bitmap = when (drawable) {
+                is BitmapDrawable -> drawable.bitmap
+                is AdaptiveIconDrawable -> {
+                    val size = 108
+                    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+                    val canvas = Canvas(bitmap)
+                    drawable.setBounds(0, 0, canvas.width, canvas.height)
+                    drawable.draw(canvas)
+                    bitmap
+                }
+                else -> {
+                    val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: 1
+                    val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: 1
+                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                    val canvas = Canvas(bitmap)
+                    drawable.setBounds(0, 0, canvas.width, canvas.height)
+                    drawable.draw(canvas)
+                    bitmap
+                }
+            }
+
+            val stream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            val byteArray = stream.toByteArray()
+            callback.onResult(byteArray)
         }
     }
 

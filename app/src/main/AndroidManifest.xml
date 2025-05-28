@@ -7,6 +7,9 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
 
     <application
         android:name=".Reyamf"
@@ -25,7 +28,7 @@
             android:exported="true"/>
 
         <service
-            android:name=".manager.sidebar.SidebarUser"
+            android:name=".manager.sidebar.SidebarService"
             android:foregroundServiceType="specialUse"
             android:enabled="true"
             android:exported="true" />

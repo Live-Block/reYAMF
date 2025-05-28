@@ -1,7 +1,9 @@
 package com.mja.reyamf.manager.adapter
 
 import android.content.pm.ActivityInfo
+import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +12,11 @@ import androidx.wear.widget.RoundedDrawable
 import com.mja.reyamf.R
 import com.mja.reyamf.common.model.AppInfo
 import com.mja.reyamf.databinding.ItemAppBinding
+import com.mja.reyamf.manager.services.YAMFManagerProxy
+import com.mja.reyamf.xposed.IAppIconCallback
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AppListAdapter (
     private val onClick: (AppInfo) -> Unit,
@@ -38,10 +45,21 @@ class AppListAdapter (
         private val binding = ItemAppBinding.bind(itemView)
         fun bind(appInfo: AppInfo){
             binding.apply {
-                val info = getIconLabel(appInfo.activityInfo)
-                val icon = info.first
-                val label = info.second
-                ivIcon.setImageDrawable(icon)
+                val label = getIconLabel(appInfo.activityInfo)
+
+                YAMFManagerProxy.getAppIcon(object : IAppIconCallback.Stub() {
+                    override fun onResult(iconData: ByteArray?) {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            if (iconData != null) {
+                                val bitmap = BitmapFactory.decodeByteArray(iconData, 0, iconData.size)
+                                ivIcon.setImageBitmap(bitmap)
+                            } else {
+                                ivIcon.setImageResource(R.drawable.work_icon)
+                            }
+                        }
+                    }
+                }, appInfo)
+
                 tvLabel.text = label
 
                 ll.setOnClickListener {
@@ -55,16 +73,9 @@ class AppListAdapter (
             }
         }
 
-        fun getIconLabel(info: ActivityInfo): Pair<Drawable, CharSequence> {
+        fun getIconLabel(info: ActivityInfo): CharSequence {
             val pm = binding.root.context.packageManager
-            return Pair(
-                RoundedDrawable().apply {
-                    isClipEnabled = true
-                    radius = 100
-                    drawable = info.loadIcon(pm)
-                },
-                info.loadLabel(pm)
-            )
+            return info.loadLabel(pm)
         }
     }
 
