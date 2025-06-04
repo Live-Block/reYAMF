@@ -163,7 +163,7 @@ fun IPackageManagerHidden.getActivityInfoCompat(className: ComponentName, flags:
 
 fun vibratePhone(context: Context) {
     val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+    vibrator.vibrate(VibrationEffect.createOneShot(5, VibrationEffect.DEFAULT_AMPLITUDE))
 }
 
 fun animateResize(

@@ -28,8 +28,14 @@
         android:title="GitHub"
         app:showAsAction="never"
         tools:ignore="HardcodedText" />
+
     <item
         android:id="@+id/donate"
+        android:title="@string/donate_juan"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/donate2"
         android:title="@string/donate"
         app:showAsAction="never" />
 </menu>

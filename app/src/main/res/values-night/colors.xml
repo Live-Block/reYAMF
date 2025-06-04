@@ -2,4 +2,5 @@
 <resources>
     <color name="transparentOutline">#20FFFFFF</color>
     <color name="resizeOutline">#60FFFFFF</color>
+    <color name="accentColor">@android:color/system_accent1_100</color>
 </resources>

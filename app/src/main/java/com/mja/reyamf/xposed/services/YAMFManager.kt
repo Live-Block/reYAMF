@@ -1,6 +1,7 @@
 package com.mja.reyamf.xposed.services
 
 import android.annotation.SuppressLint
+import android.app.AndroidAppHelper
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -62,6 +63,7 @@ object YAMFManager : IYAMFManager.Stub() {
     const val ACTION_GET_LAUNCHER_CONFIG = "com.mja.reyamf.ACTION_GET_LAUNCHER_CONFIG"
     const val ACTION_OPEN_APP = "com.mja.reyamf.action.OPEN_APP"
     private const val ACTION_CURRENT_TO_WINDOW = "com.mja.reyamf.action.CURRENT_TO_WINDOW"
+    private const val ACTION_OPEN_APP_LIST = "com.mja.reyamf.action.OPEN_APP_LIST"
     const val ACTION_OPEN_IN_YAMF = "com.mja.reyamf.ACTION_OPEN_IN_YAMF"
 
     const val EXTRA_COMPONENT_NAME = "componentName"
@@ -80,8 +82,6 @@ object YAMFManager : IYAMFManager.Stub() {
     private var openWindowCount = 0
     private val iOpenCountListenerSet = mutableSetOf<IOpenCountListener>()
     lateinit var activityManagerService: Any
-    var isSideBarRun = false
-    var sidebarLayout: ConstraintLayout? = null
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     fun systemReady() {
@@ -89,6 +89,11 @@ object YAMFManager : IYAMFManager.Stub() {
         systemContext.registerReceiver(ACTION_OPEN_IN_YAMF, OpenInYAMFBroadcastReceiver)
         systemContext.registerReceiver(ACTION_CURRENT_TO_WINDOW) { _, _ ->
             currentToWindow()
+        }
+        systemContext.registerReceiver(ACTION_OPEN_APP_LIST) { _, _ ->
+            val componentName = ComponentName("com.mja.reyamf", "com.mja.reyamf.manager.applist.AppListWindow")
+            val intent = Intent().setComponent(componentName)
+            AndroidAppHelper.currentApplication().startService(intent)
         }
         systemContext.registerReceiver(ACTION_OPEN_APP) { _, intent ->
             val componentName = intent.getParcelableExtra<ComponentName>(EXTRA_COMPONENT_NAME)
@@ -132,7 +137,7 @@ object YAMFManager : IYAMFManager.Stub() {
         windowList.remove(id)
     }
 
-    fun isTop(id: Int) = windowList[0] == id
+    fun isTop(id: Int) = if (windowList.isNotEmpty()) windowList[0] == id else true
 
     fun moveToTop(id: Int) {
         windowList.remove(id)
@@ -278,6 +283,7 @@ object YAMFManager : IYAMFManager.Stub() {
         }
     }
 
+    //Might be useful in the future
     override fun getAppIcon(callback: IAppIconCallback, appInfo: AppInfo) {
         runMain {
             val drawable = appInfo.activityInfo.loadIcon(Instances.packageManager)

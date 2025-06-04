@@ -12,7 +12,8 @@
     <string name="new_window">New window</string>
     <string name="open_app_list">Open app list</string>
     <string name="telegram_channel">Telegram channel</string>
-    <string name="donate">donate</string>
+    <string name="donate_juan">Donate Juan</string>
+    <string name="donate">Donate duzhaokun</string>
     <string name="back_desc">back</string>
     <string name="minimize_desc">minimize</string>
     <string name="resize_desc">resize window</string>

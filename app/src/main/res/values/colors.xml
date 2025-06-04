@@ -2,6 +2,7 @@
 <resources>
     <color name="color_warning">#FBC02D</color>
     <color name="black">#FF000000</color>
+    <color name="accentColor">@android:color/system_accent1_500</color>
 
     //dark theme
     <color name="darkThemeText">#cdcccc</color>

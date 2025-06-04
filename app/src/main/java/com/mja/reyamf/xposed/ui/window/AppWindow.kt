@@ -6,6 +6,7 @@ import android.app.ActivityTaskManager
 import android.app.ITaskStackListenerProxy
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Context.DISPLAY_SERVICE
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.IPackageManagerHidden
@@ -15,11 +16,13 @@ import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
 import android.graphics.drawable.BitmapDrawable
+import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.os.Build
 import android.os.SystemClock
 import android.util.Log
 import android.util.TypedValue
+import android.view.Display
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.IRotationWatcher
@@ -38,7 +41,9 @@ import android.view.WindowManagerHidden
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.RelativeLayout
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.graphics.ColorUtils
+import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.dynamicanimation.animation.FlingAnimation
 import androidx.dynamicanimation.animation.flingAnimationOf
@@ -64,7 +69,6 @@ import com.mja.reyamf.xposed.utils.animateResize
 import com.mja.reyamf.xposed.utils.animateScaleThenResize
 import com.mja.reyamf.xposed.utils.dpToPx
 import com.mja.reyamf.xposed.utils.getActivityInfoCompat
-import com.mja.reyamf.xposed.utils.log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -117,6 +121,8 @@ class AppWindow(
     private var originalWidth: Int = 0
     private var originalHeight: Int = 0
     private var isResize: Boolean = true
+    private var orientation = 0
+    private var params = WindowManager.LayoutParams()
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -130,10 +136,6 @@ class AppWindow(
                 val width = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200F, context.resources.displayMetrics).toInt()
                 val height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300F, context.resources.displayMetrics).toInt()
                 binding.vSizePreviewer.updateLayoutParams {
-                    this.width = width
-                    this.height = height
-                }
-                binding.vSupporter.updateLayoutParams {
                     this.width = width
                     this.height = height
                 }
@@ -158,15 +160,17 @@ class AppWindow(
 
     private fun doInit() {
         when(config.surfaceView) {
-            0 -> surfaceView = TextureView(context)
-            1 -> surfaceView = SurfaceView(context)
+            0 -> {
+                surfaceView = binding.viewSurface
+                binding.viewTexture.visibility = View.GONE
+            }
+            1 -> {
+                surfaceView = binding.viewTexture
+                binding.viewSurface.visibility = View.GONE
+            }
         }
-        binding.rlCardRoot.addView(surfaceView.apply {
-            id = R.id.surface
-        }, 0, RelativeLayout.LayoutParams(binding.vSizePreviewer.layoutParams).apply {
-            addRule(RelativeLayout.BELOW, R.id.rl_top)
-        })
-        val params = WindowManager.LayoutParams(
+
+        params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
@@ -176,20 +180,59 @@ class AppWindow(
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
                     WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM,
             PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.START or Gravity.TOP
+        )
+
+        val displayManager = context.getSystemService(DISPLAY_SERVICE) as DisplayManager
+        val display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)
+        val rotation = display?.rotation ?: Surface.ROTATION_0
+        params.y = when (rotation) {
+            Surface.ROTATION_0, Surface.ROTATION_180 -> {
+                orientation = 0
+                binding.rlBarControllerSide.isVisible = false
+                config.portraitY
+            }
+            Surface.ROTATION_90, Surface.ROTATION_270 -> {
+                orientation = 1
+                binding.rlBarControllerBottom.isVisible = false
+                config.landscapeY
+            }
+            else -> 0
+        }
+
+        params.apply {
+
+            if (orientation == 0) {
+                gravity = Gravity.CENTER
+                y = -80.dpToPx().toInt()
+            } else {
+                gravity = Gravity.TOP or Gravity.START
+                y = 0
+            }
             x = 0
-            y = 0
 //            this as WindowLayoutParamsHidden
 //            privateFlags = privateFlags or WindowLayoutParamsHidden.PRIVATE_FLAG_IS_ROUNDED_CORNERS_OVERLAY
         }
+
         binding.root.let { layout ->
-            layout.setOnTouchListener { _, event ->
-                moveGestureDetector.onTouchEvent(event)
-                moveToTopIfNeed(event)
-                true
-            }
             Instances.windowManager.addView(layout, params)
+        }
+
+        binding.rootClickMask.setOnTouchListener { _, event ->
+            moveGestureDetector.onTouchEvent(event)
+            moveToTopIfNeed(event)
+            true
+        }
+
+        binding.cvBarSideClickMask.setOnTouchListener { _, event ->
+            moveGestureDetector.onTouchEvent(event)
+            moveToTopIfNeed(event)
+            true
+        }
+
+        binding.cvBarClickMask.setOnTouchListener { _, event ->
+            moveGestureDetector.onTouchEvent(event)
+            moveToTopIfNeed(event)
+            true
         }
 
         rightResize(binding.ibRightResize)
@@ -250,9 +293,12 @@ class AppWindow(
 
             binding.cvappIcon.visibility = View.INVISIBLE
             animateAlpha(binding.ibClose, 1f, 0f)
-            animateAlpha(binding.ibMinimize, 1f, 0f)
-            animateAlpha(binding.ibFullscreen, 1f, 0f)
             animateAlpha(binding.ibBack, 1f, 0f)
+            if (orientation == 0) {
+                animateAlpha(binding.rlBarControllerBottom, 1f, 0f)
+            } else {
+                animateAlpha(binding.rlBarControllerSide, 1f, 0f)
+            }
 
             CoroutineScope(Dispatchers.Main).launch {
                 delay(200)
@@ -281,10 +327,29 @@ class AppWindow(
         }
         binding.ibMinimize.setOnClickListener {
             changeMini()
+            binding.apply {
+                ibSuper.visibility = View.VISIBLE
+                ibMinimize.visibility = View.INVISIBLE
+                ibFullscreen.visibility = View.INVISIBLE
+            }
         }
+
         binding.ibMinimize.setOnLongClickListener {
             changeCollapsed()
+            binding.apply {
+                ibSuper.visibility = View.VISIBLE
+                ibMinimize.visibility = View.INVISIBLE
+                ibFullscreen.visibility = View.INVISIBLE
+            }
             true
+        }
+
+        binding.ibSuper.setOnClickListener {
+            binding.apply {
+                ibSuper.visibility = View.INVISIBLE
+                ibMinimize.visibility = View.VISIBLE
+                ibFullscreen.visibility = View.VISIBLE
+            }
         }
 
         virtualDisplay = Instances.displayManager.createVirtualDisplay(
@@ -317,7 +382,6 @@ class AppWindow(
             this.width = width
             this.height = height
         }
-        binding.vSupporter.layoutParams = FrameLayout.LayoutParams(binding.vSizePreviewer.layoutParams)
         onVirtualDisplayCreated(displayId)
 
         isResize = false
@@ -349,16 +413,11 @@ class AppWindow(
                     delay(200)
 
                     animateAlpha(binding.ibClose, 0f, 1f)
-                    animateAlpha(binding.ibMinimize, 0f, 1f)
-                    animateAlpha(binding.ibFullscreen, 0f, 1f)
                     animateAlpha(binding.ibBack, 0f, 1f)
                     binding.cvParent.strokeWidth = 2.dpToPx().toInt()
                 }
 
                 isResize = true
-            }
-            binding.root.onFocusChangeListener = View.OnFocusChangeListener { v, hasFocus ->
-                Log.d("TAG", "Focus changed: $hasFocus")
             }
         }
     }
@@ -439,9 +498,7 @@ class AppWindow(
             }
 
             if (config.coloredController) {
-
-                binding.rlCardRoot.setBackgroundColor(backgroundColor)
-                binding.rlTop.setBackgroundColor(statusBarColor)
+                binding.rlTop.setBackgroundColor(backgroundColor)
 
                 val onStateBar = if (MaterialColors.isColorLight(ColorUtils.compositeColors(statusBarColor, backgroundColor)) xor ((context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES)) {
                     context.theme.getAttr(com.google.android.material.R.attr.colorOnPrimaryContainer).data
@@ -451,7 +508,6 @@ class AppWindow(
 
                 binding.ibClose.imageTintList = ColorStateList.valueOf(onStateBar)
                 binding.background.setBackgroundColor(navigationBarColor)
-                binding.rlRightResize.setBackgroundColor(navigationBarColor)
 
                 val onNavigationBar = if (MaterialColors.isColorLight(ColorUtils.compositeColors(navigationBarColor, backgroundColor)) xor ((context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES)) {
                     context.theme.getAttr(com.google.android.material.R.attr.colorOnPrimaryContainer).data
@@ -506,7 +562,6 @@ class AppWindow(
                 width = surfaceHeight
                 height = surfaceWidth
             }
-            binding.vSupporter.layoutParams = FrameLayout.LayoutParams(binding.vSizePreviewer.layoutParams)
         }
     }
 
@@ -557,6 +612,7 @@ class AppWindow(
         if (isMini) {
             isMini = false
             isResize = true
+            binding.rootClickMask.visibility = View.GONE
 
             if (surfaceView is SurfaceView) {
                 binding.cvBackground.updateLayoutParams {
@@ -565,6 +621,13 @@ class AppWindow(
                 }
                 setBackgroundWrapContent()
                 setParrentWrapContent()
+                if (orientation == 0) {
+                    binding.rlBarControllerBottom.visibility = View.VISIBLE
+                    binding.rlBarControllerSide.visibility = View.GONE
+                } else {
+                    binding.rlBarControllerSide.visibility = View.VISIBLE
+                    binding.rlBarControllerBottom.visibility = View.GONE
+                }
             } else {
                 binding.cvBackground.updateLayoutParams {
                     width = originalWidth
@@ -584,7 +647,12 @@ class AppWindow(
             }
 
             binding.rlTop.visibility = View.VISIBLE
-            binding.rlRightResize.visibility = View.VISIBLE
+            binding.ibRightResize.visibility = View.VISIBLE
+            if (orientation == 0) {
+                binding.rlBarControllerBottom.visibility = View.VISIBLE
+            } else {
+                binding.rlBarControllerSide.visibility = View.VISIBLE
+            }
             surfaceView.visibility = View.VISIBLE
             surfaceView.setOnTouchListener(surfaceOnTouchListener)
             surfaceView.setOnGenericMotionListener(surfaceOnGenericMotionListener)
@@ -592,6 +660,9 @@ class AppWindow(
             return
         }
         else if (!isMini) {
+            binding.rootClickMask.visibility = View.VISIBLE
+            binding.rlBarControllerBottom.visibility = View.GONE
+            binding.rlBarControllerSide.visibility = View.GONE
             isMini = true
 
             if (config.surfaceView == 1) {
@@ -611,7 +682,7 @@ class AppWindow(
             }
 
             binding.rlTop.visibility = View.GONE
-            binding.rlRightResize.visibility = View.GONE
+            binding.ibRightResize.visibility = View.GONE
             surfaceView.setOnTouchListener(null)
             surfaceView.setOnGenericMotionListener(null)
 
@@ -636,8 +707,13 @@ class AppWindow(
     private fun changeCollapsed() {
         isResize = false
         if (isCollapsed) {
+            binding.rootClickMask.visibility = View.GONE
             expandWindow()
         } else {
+            binding.rootClickMask.visibility = View.VISIBLE
+            binding.rlBarControllerBottom.visibility = View.GONE
+            binding.rlBarControllerSide.visibility = View.GONE
+
             collapseWindow()
         }
     }
@@ -658,9 +734,12 @@ class AppWindow(
                     delay(200)
 
                     animateAlpha(binding.ibClose, 0f, 1f)
-                    animateAlpha(binding.ibMinimize, 0f, 1f)
-                    animateAlpha(binding.ibFullscreen, 0f, 1f)
                     animateAlpha(binding.ibBack, 0f, 1f)
+                    if (orientation == 0) {
+                        binding.rlBarControllerBottom.visibility = View.VISIBLE
+                    } else {
+                        binding.rlBarControllerSide.visibility = View.VISIBLE
+                    }
                 }
 
                 binding.cvappIcon.visibility = View.GONE
@@ -673,8 +752,6 @@ class AppWindow(
         isCollapsed = true
 
         animateAlpha(binding.ibClose, 1f, 0f)
-        animateAlpha(binding.ibMinimize, 1f, 0f)
-        animateAlpha(binding.ibFullscreen, 1f, 0f)
         animateAlpha(binding.ibBack, 1f, 0f)
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -740,18 +817,11 @@ class AppWindow(
                         }
                     }
                     MotionEvent.ACTION_UP -> {
-                        surfaceView.updateLayoutParams {
-                            val targetWidth = beginWidth + offsetX.toInt()
-                            if (targetWidth > 0)
-                                width = targetWidth
-                            val targetHeight = beginHeight + offsetY.toInt()
-                            if (targetHeight > 0)
-                                height = targetHeight
-                        }
-                        binding.vSupporter.layoutParams = FrameLayout.LayoutParams(binding.vSizePreviewer.layoutParams)
-                        binding.cvBackground.post {
-                            originalWidth = binding.cvBackground.width
-                            originalHeight = binding.cvBackground.height
+                        binding.vSizePreviewer.post {
+                            surfaceView.updateLayoutParams {
+                                width = binding.vSizePreviewer.width
+                                height = binding.vSizePreviewer.height
+                            }
                         }
 
                         binding.vSizePreviewer.visibility = View.GONE
@@ -883,4 +953,3 @@ class AppWindow(
         }
     })
 }
-

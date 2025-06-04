@@ -178,12 +178,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            ivDemo.let {
-                Glide.with(this@MainActivity)
-                    .load(R.drawable.demo)
-                    .into(it)
-            }
-
             if (config.enableSidebar) {
                 innerClSidebar.visibility = View.VISIBLE
             } else {
@@ -264,6 +258,12 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.donate -> {
+                startActivity(Intent(Intent.ACTION_VIEW).apply {
+                    data = "https://linktr.ee/jxuanlie".toUri()
+                })
+                true
+            }
+            R.id.donate2 -> {
                 startActivity(Intent(Intent.ACTION_VIEW).apply {
                     data = "https://duzhaokun123.github.io/donate.html".toUri()
                 })

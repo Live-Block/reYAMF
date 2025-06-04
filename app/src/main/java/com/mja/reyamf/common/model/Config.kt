@@ -20,7 +20,7 @@ data class Config(
      * 0: TextureView
      * 1: SurfaceView
     */
-    var surfaceView: Int = 0,
+    var surfaceView: Int = 1,
     var recentBackHome: Boolean = false,
     var showImeInWindow: Boolean = false,
     var defaultWindowWidth: Int = 280,

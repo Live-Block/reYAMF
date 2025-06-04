@@ -23,15 +23,18 @@
         android:theme="@style/Theme.Reyamf"
         tools:targetApi="35">
         <service
+            android:name=".manager.services.Window"
+            android:enabled="true"
+            android:exported="true"></service>
+        <service
             android:name=".manager.applist.AppListWindow"
             android:enabled="true"
-            android:exported="true"/>
-
+            android:exported="true" />
         <service
             android:name=".manager.sidebar.SidebarService"
-            android:foregroundServiceType="specialUse"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:foregroundServiceType="specialUse" />
 
         <activity
             android:name=".manager.ui.setting.SettingActivity"

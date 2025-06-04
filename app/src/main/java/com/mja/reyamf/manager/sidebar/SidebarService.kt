@@ -94,6 +94,7 @@ class SidebarService() : LifecycleService() {
 
     private val _showApp: MutableLiveData<List<AppInfo>> = MutableLiveData()
     private val showApp: LiveData<List<AppInfo>> = _showApp
+    private var isAnimating = false
 
     private var isServiceRunning = false
 
@@ -145,7 +146,7 @@ class SidebarService() : LifecycleService() {
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
 
@@ -255,13 +256,18 @@ class SidebarService() : LifecycleService() {
         }
 
         binding.root.setOnClickListener {
-            hideMenu()
+            if (isAnimating) hideMenu()
         }
 
         binding.ibAppList.setOnClickListener {
             runMain {
                 startService(Intent(this@SidebarService, AppListWindow::class.java))
             }
+            hideMenu()
+        }
+
+        binding.ibCurrentToWindow.setOnClickListener {
+            YAMFManagerProxy.currentToWindow()
             hideMenu()
         }
 
@@ -385,6 +391,7 @@ class SidebarService() : LifecycleService() {
             }
 
             YAMFManagerProxy.updateConfig(gson.toJson(config))
+            config = gson.fromJson(YAMFManagerProxy.configJson, YAMFConfig::class.java)
         }
         return true
     }
@@ -408,6 +415,7 @@ class SidebarService() : LifecycleService() {
     }
 
     private fun showMenu() {
+        isAnimating = true
         if (!isShown) {
             isShown = true
             binding.root.elevation = 8.dpToPx()
@@ -425,8 +433,9 @@ class SidebarService() : LifecycleService() {
 
             val layout = binding.test
             val params1 = layout.layoutParams as ConstraintLayout.LayoutParams
+            val position = if (orientation == 0) config.portraitY else config.landscapeY
             params1.topMargin =
-                (Resources.getSystem().displayMetrics.heightPixels/2 + config.portraitY) - 75.dpToPx().toInt()
+                (Resources.getSystem().displayMetrics.heightPixels/2 + position) - 75.dpToPx().toInt()
             layout.layoutParams = params1
 
             lifecycleScope.launch {

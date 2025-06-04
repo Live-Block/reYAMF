@@ -153,13 +153,13 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
-                    android:id="@+id/ib_restart_sidebar"
+                    android:id="@+id/ibCurrentToWindow"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/baseline_restart_alt_24"
+                    android:src="@drawable/ic_picture_in_picture_alt_24"
                     app:layout_constraintEnd_toStartOf="@+id/ib_app_list"
-                    app:layout_constraintStart_toEndOf="@+id/ib_extra_menu"
+                    app:layout_constraintStart_toEndOf="@+id/ib_kill_sidebar"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton

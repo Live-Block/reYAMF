@@ -2,10 +2,11 @@
     android:width="28dp"
     android:height="28dp"
     android:viewportWidth="200"
+    android:tint="@color/accentColor"
     android:viewportHeight="200">
   <path
       android:pathData="M50,135h124v11h-124z"
       android:strokeWidth="2.00"
-      android:fillColor="?attr/colorPrimary"
-      android:strokeColor="?attr/colorPrimary"/>
+      android:fillColor="@android:color/system_accent1_50"
+      android:strokeColor="@android:color/system_accent1_50"/>
 </vector>

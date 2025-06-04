@@ -69,14 +69,39 @@ class HookSystem : IXposedHookZygoteInit, IXposedHookLoadPackage {
             "com.android.server.am.BroadcastController"
         )
 
-        targetClasses.firstNotNullOfOrNull { className ->
-            runCatching {
-                findMethod(className) { name == "checkBroadcastFromSystem" }
-            }.getOrNull()
-        }?.hookBefore {
-            val intent = it.args[0] as Intent
-            if (intent.action == HookLauncher.ACTION_RECEIVE_LAUNCHER_CONFIG)
-                it.result = Unit
+        runCatching {
+            findMethod(targetClasses[0]) {
+                name == "checkBroadcastFromSystem"
+            }.hookBefore {
+                val intent = it.args[0] as Intent
+                if (intent.action == HookLauncher.ACTION_RECEIVE_LAUNCHER_CONFIG)
+                    it.result = Unit
+            }
+        }.onFailure {
+            log(TAG, "ActivityManagerService checkBroadcastFromSystem fail")
         }
+
+        runCatching {
+            findMethod(targetClasses[1]) {
+                name == "checkBroadcastFromSystem"
+            }.hookBefore {
+                val intent = it.args[0] as Intent
+                if (intent.action == HookLauncher.ACTION_RECEIVE_LAUNCHER_CONFIG)
+                    it.result = Unit
+            }
+        }.onFailure {
+            log(TAG, "BroadcastController checkBroadcastFromSystem fail")
+        }
+
+
+//        targetClasses.firstNotNullOfOrNull { className ->
+//            runCatching {
+//                findMethod(className) { name == "checkBroadcastFromSystem" }
+//            }.getOrNull()
+//        }?.hookBefore {
+//            val intent = it.args[0] as Intent
+//            if (intent.action == HookLauncher.ACTION_RECEIVE_LAUNCHER_CONFIG)
+//                it.result = Unit
+//        }
     }
 }
