@@ -626,7 +626,29 @@ class AppWindow(
     private val backgroundGestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onSingleTapUp(e: MotionEvent): Boolean {
             if (!isMini) {
-                onDestroy()
+                // 根据屏幕方向淡出相应的控制器
+                if (orientation == 0) {
+                    animateAlpha(binding.rlBarControllerBottom, 1f, 0f)
+                } else {
+                    animateAlpha(binding.rlBarControllerSide, 1f, 0f)
+                }
+
+                // 延迟执行缩放动画，然后销毁窗口
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(100)  // 减少延迟时间从200ms到100ms
+
+                    animateScaleThenResize(
+                        binding.cvParent,
+                        1F, 1F,      // 起始缩放
+                        0F, 0F,      // 结束缩放
+                        0.5F, 0.5F,  // 缩放中心点
+                        0, 0,        // 结束尺寸
+                        context,
+                        150L         // 减少动画持续时长从300ms到150ms
+                    ) {
+                        onDestroy()
+                    }
+                }
             }
             return true
         }
