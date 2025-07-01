@@ -48,41 +48,84 @@ import java.lang.reflect.Proxy
 import com.mja.reyamf.xposed.utils.registerReceiver
 import com.mja.reyamf.xposed.services.YAMFManager
 
-
+/**
+ * 启动器Hook实现类
+ *
+ * 负责Hook Android启动器（Launcher3）的各种功能，为reYAMF提供集成入口：
+ * 1. Hook最近任务界面，添加窗口化选项
+ * 2. Hook任务栏，提供快速窗口化功能
+ * 3. Hook应用长按弹出菜单，添加窗口化选项
+ * 4. Hook透明任务栏功能
+ *
+ * 该类通过动态配置决定启用哪些Hook功能，提供灵活的集成方案。
+ */
 class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
     companion object {
         const val TAG = "reYAMF_HookLauncher"
+
+        // 广播Action和Extra键常量
+        /** 接收启动器配置的广播Action */
         const val ACTION_RECEIVE_LAUNCHER_CONFIG =
             "com.mja.reyamf.ACTION_RECEIVE_LAUNCHER_CONFIG"
 
+        /** Hook最近任务的配置键 */
         const val EXTRA_HOOK_RECENT = "hookRecent"
+        /** Hook任务栏的配置键 */
         const val EXTRA_HOOK_TASKBAR = "hookTaskbar"
+        /** Hook弹出菜单的配置键 */
         const val EXTRA_HOOK_POPUP = "hookPopup"
+        /** Hook透明任务栏的配置键 */
         const val EXTRA_HOOK_TRANSIENT_TASKBAR = "hookTransientTaskbar"
     }
 
+    /**
+     * Zygote进程初始化Hook
+     *
+     * @param startupParam Xposed启动参数
+     */
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam) {
         EzXHelperInit.initZygote(startupParam)
     }
 
+    /**
+     * 应用包加载Hook处理
+     *
+     * @param lpparam 包加载参数
+     *
+     * 工作流程：
+     * 1. 检查是否为Launcher3应用
+     * 2. Hook Application.onCreate方法
+     * 3. 注册配置接收器，根据配置动态启用Hook功能
+     * 4. 向系统发送配置请求广播
+     */
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         EzXHelperInit.initHandleLoadPackage(lpparam)
+
+        // 检查是否为Launcher3应用，如果不是则直接返回
         loadClassOrNull("com.android.launcher3.Launcher") ?: return
+
+        // Hook Application的onCreate方法
         Application::class.java.findMethod {
             name == "onCreate"
         }.hookAfter {
             val application = it.thisObject as Application
+
+            // 注册配置接收器，接收来自系统的Hook配置
             application.registerReceiver(ACTION_RECEIVE_LAUNCHER_CONFIG) { _, intent ->
+                // 解析配置参数
                 val hookRecent = intent.getBooleanExtra(EXTRA_HOOK_RECENT, false)
                 val hookTaskbar = intent.getBooleanExtra(EXTRA_HOOK_TASKBAR, false)
                 val hookPopup = intent.getBooleanExtra(EXTRA_HOOK_POPUP, false)
                 val hookTransientTaskbar =
                     intent.getBooleanExtra(EXTRA_HOOK_TRANSIENT_TASKBAR, false)
+
                 log(
                     TAG,
                     "receive config hookRecent=$hookRecent hookTaskbar=$hookTaskbar hookPopup=$hookPopup hookTranslucentTaskbar=$hookTransientTaskbar"
                 )
+
+                // 根据配置动态启用相应的Hook功能
                 if (hookRecent) runCatching { hookRecent(lpparam) }.onFailure { e ->
                     log(TAG, "hook recent failed", e) }
                 if (hookTaskbar) runCatching { hookTaskbar(lpparam) }.onFailure { e ->
@@ -91,8 +134,12 @@ class HookLauncher : IXposedHookLoadPackage, IXposedHookZygoteInit {
                     log(TAG, "hook popup failed", e) }
                 if (hookTransientTaskbar) runCatching { hookTransientTaskbar(lpparam) }.onFailure { e ->
                     log(TAG, "hook transient failed", e) }
+
+                // 配置接收完成后取消注册，避免重复处理
                 application.unregisterReceiver(this)
             }
+
+            // 向系统发送配置请求广播
             application.sendBroadcast(Intent(YAMFManager.ACTION_GET_LAUNCHER_CONFIG).apply {
                 `package` = "android"
                 putExtra("sender", application.packageName)

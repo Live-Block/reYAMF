@@ -61,22 +61,46 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.mja.reyamf.common.model.Config as YAMFConfig
 
+/**
+ * reYAMF侧边栏服务
+ *
+ * 这是一个前台服务，提供系统级的侧边栏功能：
+ * 1. 在屏幕边缘显示可拖拽的侧边栏
+ * 2. 管理用户收藏的应用列表
+ * 3. 提供快速启动应用到浮动窗口的功能
+ * 4. 支持左右侧边栏位置切换
+ * 5. 提供侧边栏的显示/隐藏动画效果
+ *
+ * 该服务继承自LifecycleService，支持生命周期感知的协程操作。
+ * 使用Hilt进行依赖注入，管理数据库操作和配置。
+ */
 @AndroidEntryPoint
 class SidebarService() : LifecycleService() {
     companion object {
         const val TAG = "reYAMF_SideBar"
+        /** 前台服务通知ID */
         const val SERVICE_NOTIFICATION_ID = 1
+        /** 通知渠道ID */
         const val SERVICE_NOTIF_CHANNEL_ID = "BatteryMonitorChannel"
     }
 
+    // ========== 依赖注入 ==========
+    /** 数据库操作接口，用于管理收藏应用 */
     @Inject
     lateinit var iReyamfRepository: IReyamfRepository
 
+    // ========== 核心组件 ==========
+    /** YAMF配置对象 */
     lateinit var config: YAMFConfig
+    /** 侧边栏布局绑定对象 */
     private lateinit var binding: SidebarLayoutBinding
+    /** 窗口布局参数 */
     private lateinit var params : WindowManager.LayoutParams
+    /** 窗口管理器 */
     private lateinit var windowManager: WindowManager
 
+    // ========== 触摸和拖拽相关 ==========
+    /** 初始X坐标，用于拖拽计算 */
     private var initialX: Int = 0
     private var initialY: Int = 0
     private var initialTouchX: Float = 0.toFloat()

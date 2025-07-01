@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="app_card_radius">0dp</dimen>
+    <dimen name="bottom_bar_height_flyme">36dp</dimen>
 </resources>

@@ -40,30 +40,87 @@ import de.robv.android.xposed.XposedBridge
 import net.bytebuddy.android.AndroidClassLoadingStrategy
 import java.io.File
 
+// ========== 日志工具函数 ==========
+
+/**
+ * 记录普通日志消息
+ *
+ * @param tag 日志标签
+ * @param message 日志消息
+ */
 fun log(tag: String, message: String) {
     XposedBridge.log("[$tag] $message")
 }
 
+/**
+ * 记录带异常的日志消息
+ *
+ * @param tag 日志标签
+ * @param message 日志消息
+ * @param t 异常对象
+ */
 fun log(tag: String, message: String, t: Throwable) {
     XposedBridge.log("[$tag] $message")
     XposedBridge.log(t)
 }
 
+// ========== 任务管理工具函数 ==========
+
+/**
+ * 移动任务到指定显示器
+ *
+ * @param taskId 任务ID
+ * @param displayId 目标显示器ID
+ *
+ * 功能：
+ * 1. 将任务的根任务栈移动到指定显示器
+ * 2. 将任务移动到前台显示
+ */
 @SuppressLint("MissingPermission")
 fun moveTask(taskId: Int, displayId: Int) {
     Instances.activityTaskManager.moveRootTaskToDisplay(taskId, displayId)
     Instances.activityManager.moveTaskToFront(taskId, 0)
 }
 
+// ========== UI工具函数 ==========
+
+/**
+ * 将dp值转换为px值的扩展函数
+ *
+ * @return 转换后的像素值
+ */
 fun Number.dpToPx() =
     TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), Resources.getSystem().displayMetrics
     )
 
+// ========== Context工具函数 ==========
+
+/** 空的Context参数，用于创建Context */
 val emptyContextParams = ContextParams.Builder().build()
 
+/**
+ * Context扩展函数，创建新的Context实例
+ *
+ * @return 新的Context实例
+ */
 fun Context.createContext() = createContext(emptyContextParams)
 
+// ========== 应用启动工具函数 ==========
+
+/**
+ * 在指定显示器上启动应用活动
+ *
+ * @param context 上下文对象
+ * @param componentName 要启动的组件名称
+ * @param userId 用户ID
+ * @param displayId 目标显示器ID
+ *
+ * 功能：
+ * 1. 创建启动Intent并设置必要标志
+ * 2. 配置ActivityOptions指定目标显示器
+ * 3. 以指定用户身份启动活动
+ */
 fun startActivity(context: Context, componentName: ComponentName, userId: Int, displayId: Int) {
     context.invokeMethod(
         "startActivityAsUser",
@@ -86,9 +143,24 @@ fun startActivity(context: Context, componentName: ComponentName, userId: Int, d
     )
 }
 
+/**
+ * 将应用移动到指定显示器（智能策略）
+ *
+ * @param context 上下文对象
+ * @param taskId 任务ID
+ * @param componentName 组件名称
+ * @param userId 用户ID
+ * @param displayId 目标显示器ID
+ *
+ * 根据配置的窗口化策略执行不同操作：
+ * - 策略0: 仅移动任务
+ * - 策略1: 仅启动活动
+ * - 策略2: 移动任务，失败时回退到启动活动
+ */
 fun moveToDisplay(context: Context, taskId: Int, componentName: ComponentName, userId: Int, displayId: Int) {
     when (YAMFManager.config.windowfy) {
         0 -> {
+            // 策略0: 仅移动任务
             runCatching {
                 moveTask(taskId, displayId)
             }.onException {
@@ -96,6 +168,7 @@ fun moveToDisplay(context: Context, taskId: Int, componentName: ComponentName, u
             }
         }
         1 -> {
+            // 策略1: 仅启动活动
             runCatching {
                 startActivity(context, componentName, userId, displayId)
             }.onException {
@@ -103,6 +176,7 @@ fun moveToDisplay(context: Context, taskId: Int, componentName: ComponentName, u
             }
         }
         2 -> {
+            // 策略2: 移动任务，失败时回退到启动活动
             runCatching {
                 moveTask(taskId, displayId)
             }.onException {
